@@ -148,6 +148,34 @@ export const exportToExcel = async (data: ExportData, filename: string) => {
         row.getCell('nominal').numFmt = '"Rp"#,##0;[Red]\\-"Rp"#,##0';
       }
     });
+
+    // Calculate Totals
+    const totalPemasukan = data.transaksi.reduce((sum, item) => item.jenis === 'pemasukan' ? sum + Number(item.nominal) : sum, 0);
+    const totalPengeluaran = data.transaksi.reduce((sum, item) => item.jenis === 'pengeluaran' ? sum + Number(item.nominal) : sum, 0);
+    const selisih = totalPemasukan - totalPengeluaran;
+
+    // Append Summary
+    ws1.addRow({}); // Empty row separator
+    const summaryStart = ws1.rowCount + 1;
+    
+    ws1.addRow({ deskripsi: 'TOTAL PEMASUKAN', nominal: totalPemasukan });
+    ws1.addRow({ deskripsi: 'TOTAL PENGELUARAN', nominal: totalPengeluaran });
+    ws1.addRow({ deskripsi: 'SELISIH BERSIH', nominal: selisih });
+
+    // Format Summary Rows
+    [summaryStart, summaryStart + 1, summaryStart + 2].forEach((rowNum, i) => {
+      const row = ws1.getRow(rowNum);
+      const descCell = row.getCell('deskripsi');
+      const nomCell = row.getCell('nominal');
+      
+      descCell.font = { bold: true };
+      descCell.alignment = { horizontal: 'right' };
+      nomCell.numFmt = '"Rp"#,##0;[Red]\\-"Rp"#,##0';
+      
+      if (i === 0) nomCell.font = { color: { argb: 'FF10B981' }, bold: true };
+      if (i === 1) nomCell.font = { color: { argb: 'FFEF4444' }, bold: true };
+      if (i === 2) nomCell.font = { color: { argb: selisih >= 0 ? 'FF10B981' : 'FFEF4444' }, bold: true };
+    });
   }
 
   // --- SHEET 2: TAGIHAN ---
