@@ -62,7 +62,14 @@ function App() {
           <div className="relative flex items-center justify-center w-24 h-24">
             <div className="absolute inset-0 rounded-full border-[4px] border-primary/10"></div>
             <div className="absolute inset-0 rounded-full border-[4px] border-primary border-t-transparent animate-spin"></div>
-            <img src="/logo.png" alt="Logo" className="w-14 h-14 object-contain animate-pulse" />
+            <video 
+              src="/money-bag.mp4" 
+              autoPlay 
+              loop 
+              muted 
+              playsInline 
+              className="w-16 h-16 object-contain rounded-full"
+            />
           </div>
           <span className="font-headline text-2xl font-bold text-on-surface tracking-tight">FiTrack</span>
         </div>
