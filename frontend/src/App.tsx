@@ -58,9 +58,9 @@ function App() {
   if (isInitializing) {
     return (
       <div className="min-h-screen bg-premium-base flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <span className="font-headline text-2xl font-bold text-on-surface tracking-tight">FiTrack</span>
-          <span className="material-symbols-outlined animate-spin text-primary text-4xl">refresh</span>
+        <div className="flex flex-col items-center gap-4 animate-pulse">
+          <img src="/logo.png" alt="FiTrack Logo" className="w-20 h-20 object-contain" />
+          <span className="font-headline text-xl font-bold text-on-surface tracking-tight">Memuat FiTrack...</span>
         </div>
       </div>
     );
