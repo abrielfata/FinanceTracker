@@ -1,6 +1,6 @@
 import { db } from '../db';
 import { tagihan, tagihanBulan, NewTagihan, transaksi } from '../db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql, isNull } from 'drizzle-orm';
 import { NotFoundError } from '../utils/errors';
 
 export const getTagihanList = async (userId: string, bulan?: string, tahun?: string) => {
@@ -27,7 +27,12 @@ export const getTagihanList = async (userId: string, bulan?: string, tahun?: str
         tahun ? eq(tagihanBulan.tahun, parseInt(tahun)) : undefined
       )
     )
-    .where(eq(tagihan.userId, userId))
+    .where(
+      and(
+        eq(tagihan.userId, userId),
+        isNull(tagihan.deletedAt)
+      )
+    )
     .orderBy(tagihan.tanggalJatuhTempo);
 };
 
@@ -66,7 +71,8 @@ export const updateTagihan = async (userId: string, tagihanId: string, data: Par
 
 export const deleteTagihan = async (userId: string, tagihanId: string) => {
   const [deletedTagihan] = await db
-    .delete(tagihan)
+    .update(tagihan)
+    .set({ deletedAt: new Date() })
     .where(and(eq(tagihan.id, tagihanId), eq(tagihan.userId, userId)))
     .returning({ id: tagihan.id });
 
@@ -115,7 +121,9 @@ export const cancelPayTagihan = async (userId: string, tagihanBulanId: string) =
     throw new NotFoundError('Data tagihan bulan tidak ditemukan');
   }
 
-  await db.delete(transaksi).where(eq(transaksi.tagihanBulanId, data.id));
+  await db.update(transaksi)
+    .set({ deletedAt: new Date() })
+    .where(eq(transaksi.tagihanBulanId, data.id));
 
   return data;
 };

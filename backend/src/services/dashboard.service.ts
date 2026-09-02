@@ -1,87 +1,105 @@
 import { db } from '../db';
 import { transaksi, tagihan, tagihanBulan, budget } from '../db/schema';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, isNull } from 'drizzle-orm';
 import { getSpendingSubquery } from './budget.service';
 
 export const getDashboardSummary = async (userId: string, bulanNum: number, tahunNum: number) => {
-  // 1. Total pemasukan & pengeluaran bulan ini
-  const [summary] = await db
-    .select({
-      pemasukan: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0)`,
-      pengeluaran: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pengeluaran' THEN nominal ELSE 0 END), 0)`,
-    })
-    .from(transaksi)
-    .where(
-      and(
-        eq(transaksi.userId, userId),
-        sql`EXTRACT(MONTH FROM ${transaksi.tanggal}) = ${bulanNum}`,
-        sql`EXTRACT(YEAR FROM ${transaksi.tanggal}) = ${tahunNum}`
-      )
-    );
-
-  // 2. Tagihan terdekat (belum lunas, bulan ini, max 5)
-  const tagihanTerdekat = await db
-    .select({
-      id: tagihan.id,
-      nama: tagihan.nama,
-      nominal: tagihan.nominal,
-      tanggalJatuhTempo: tagihan.tanggalJatuhTempo,
-      kategori: tagihan.kategori,
-      status: tagihanBulan.status,
-      tagihanBulanId: tagihanBulan.id,
-    })
-    .from(tagihan)
-    .leftJoin(
-      tagihanBulan,
-      and(
-        eq(tagihanBulan.tagihanId, tagihan.id),
-        eq(tagihanBulan.bulan, bulanNum),
-        eq(tagihanBulan.tahun, tahunNum)
-      )
-    )
-    .where(eq(tagihan.userId, userId))
-    .orderBy(tagihan.tanggalJatuhTempo)
-    .limit(5);
-
-  // 3. Budget summary dengan spending
-  const budgetSummary = await db
-    .select({
-      id: budget.id,
-      kategori: budget.kategori,
-      nominal: budget.nominal,
-      terpakai: getSpendingSubquery(userId, bulanNum, tahunNum),
-    })
-    .from(budget)
-    .where(
-      and(
-        eq(budget.userId, userId),
-        eq(budget.bulan, bulanNum),
-        eq(budget.tahun, tahunNum)
-      )
-    );
-
-  // 4. Saldo bulan lalu (untuk persentase perubahan)
   const bulanLalu = bulanNum === 1 ? 12 : bulanNum - 1;
   const tahunLalu = bulanNum === 1 ? tahunNum - 1 : tahunNum;
 
-  const [summaryLalu] = await db
-    .select({
-      pemasukan: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0)`,
-      pengeluaran: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pengeluaran' THEN nominal ELSE 0 END), 0)`,
-    })
-    .from(transaksi)
-    .where(
-      and(
-        eq(transaksi.userId, userId),
-        sql`EXTRACT(MONTH FROM ${transaksi.tanggal}) = ${bulanLalu}`,
-        sql`EXTRACT(YEAR FROM ${transaksi.tanggal}) = ${tahunLalu}`
-      )
-    );
+  const [
+    [summary],
+    tagihanTerdekat,
+    budgetSummary,
+    [summaryLalu]
+  ] = await Promise.all([
+    // 1. Total pemasukan & pengeluaran bulan ini
+    db
+      .select({
+        pemasukan: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0)`,
+        pengeluaran: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pengeluaran' THEN nominal ELSE 0 END), 0)`,
+      })
+      .from(transaksi)
+      .where(
+        and(
+          eq(transaksi.userId, userId),
+          isNull(transaksi.deletedAt),
+          sql`EXTRACT(MONTH FROM ${transaksi.tanggal}) = ${bulanNum}`,
+          sql`EXTRACT(YEAR FROM ${transaksi.tanggal}) = ${tahunNum}`
+        )
+      ),
 
-  const pemasukan = Number(summary.pemasukan) || 0;
-  const pengeluaran = Number(summary.pengeluaran) || 0;
+    // 2. Tagihan terdekat (belum lunas, bulan ini, max 5)
+    db
+      .select({
+        id: tagihan.id,
+        nama: tagihan.nama,
+        nominal: tagihan.nominal,
+        tanggalJatuhTempo: tagihan.tanggalJatuhTempo,
+        kategori: tagihan.kategori,
+        status: tagihanBulan.status,
+        tagihanBulanId: tagihanBulan.id,
+      })
+      .from(tagihan)
+      .leftJoin(
+        tagihanBulan,
+        and(
+          eq(tagihanBulan.tagihanId, tagihan.id),
+          eq(tagihanBulan.bulan, bulanNum),
+          eq(tagihanBulan.tahun, tahunNum)
+        )
+      )
+      .where(
+        and(
+          eq(tagihan.userId, userId),
+          isNull(tagihan.deletedAt)
+        )
+      )
+      .orderBy(tagihan.tanggalJatuhTempo)
+      .limit(5),
+
+    // 3. Budget summary dengan spending
+    db
+      .select({
+        id: budget.id,
+        kategori: budget.kategori,
+        nominal: budget.nominal,
+        terpakai: getSpendingSubquery(userId, bulanNum, tahunNum),
+      })
+      .from(budget)
+      .where(
+        and(
+          eq(budget.userId, userId),
+          eq(budget.bulan, bulanNum),
+          eq(budget.tahun, tahunNum)
+        )
+      ),
+
+    // 4. Saldo bulan lalu (untuk persentase perubahan)
+    db
+      .select({
+        pemasukan: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0)`,
+        pengeluaran: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pengeluaran' THEN nominal ELSE 0 END), 0)`,
+      })
+      .from(transaksi)
+      .where(
+        and(
+          eq(transaksi.userId, userId),
+          isNull(transaksi.deletedAt),
+          sql`EXTRACT(MONTH FROM ${transaksi.tanggal}) = ${bulanLalu}`,
+          sql`EXTRACT(YEAR FROM ${transaksi.tanggal}) = ${tahunLalu}`
+        )
+      )
+  ]);
+
+  const pemasukan = Number(summary?.pemasukan) || 0;
+  const pengeluaran = Number(summary?.pengeluaran) || 0;
   const saldo = pemasukan - pengeluaran;
-  const saldoLalu = Number(summaryLalu.pemasukan || 0) - Number(summaryLalu.pengeluaran || 0);
+  
+  const pemasukanLalu = Number(summaryLalu?.pemasukan) || 0;
+  const pengeluaranLalu = Number(summaryLalu?.pengeluaran) || 0;
+  const saldoLalu = pemasukanLalu - pengeluaranLalu;
+  
   const persenSaldo = saldoLalu > 0
     ? ((saldo - saldoLalu) / saldoLalu) * 100
     : 0;
@@ -103,9 +121,14 @@ export const getTrendSummary = async (userId: string) => {
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
 
-  const trendData = [];
+  let startMonth = currentMonth - 5;
+  let startYear = currentYear;
+  if (startMonth <= 0) {
+    startMonth += 12;
+    startYear -= 1;
+  }
 
-  // Get data for the last 6 months
+  const months = [];
   for (let i = 5; i >= 0; i--) {
     let m = currentMonth - i;
     let y = currentYear;
@@ -113,28 +136,38 @@ export const getTrendSummary = async (userId: string) => {
       m += 12;
       y -= 1;
     }
-
-    const [summary] = await db
-      .select({
-        pemasukan: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0)`,
-        pengeluaran: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pengeluaran' THEN nominal ELSE 0 END), 0)`,
-      })
-      .from(transaksi)
-      .where(
-        and(
-          eq(transaksi.userId, userId),
-          sql`EXTRACT(MONTH FROM ${transaksi.tanggal}) = ${m}`,
-          sql`EXTRACT(YEAR FROM ${transaksi.tanggal}) = ${y}`
-        )
-      );
-
-    trendData.push({
-      bulan: m,
-      tahun: y,
-      pemasukan: Number(summary.pemasukan),
-      pengeluaran: Number(summary.pengeluaran),
-    });
+    months.push({ bulan: m, tahun: y });
   }
+
+  const rawData = await db
+    .select({
+      bulan: sql<number>`CAST(EXTRACT(MONTH FROM ${transaksi.tanggal}) AS INTEGER)`,
+      tahun: sql<number>`CAST(EXTRACT(YEAR FROM ${transaksi.tanggal}) AS INTEGER)`,
+      pemasukan: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0)`,
+      pengeluaran: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pengeluaran' THEN nominal ELSE 0 END), 0)`,
+    })
+    .from(transaksi)
+    .where(
+      and(
+        eq(transaksi.userId, userId),
+        isNull(transaksi.deletedAt),
+        sql`(${transaksi.tanggal} >= MAKE_DATE(${startYear}, ${startMonth}, 1))`
+      )
+    )
+    .groupBy(
+      sql`EXTRACT(YEAR FROM ${transaksi.tanggal})`,
+      sql`EXTRACT(MONTH FROM ${transaksi.tanggal})`
+    );
+
+  const trendData = months.map(m => {
+    const found = rawData.find(r => r.bulan === m.bulan && r.tahun === m.tahun);
+    return {
+      bulan: m.bulan,
+      tahun: m.tahun,
+      pemasukan: found ? Number(found.pemasukan) : 0,
+      pengeluaran: found ? Number(found.pengeluaran) : 0,
+    };
+  });
 
   return trendData;
 };
@@ -151,7 +184,12 @@ export const getAllExportData = async (userId: string) => {
         tanggal: transaksi.tanggal,
       })
       .from(transaksi)
-      .where(eq(transaksi.userId, userId))
+      .where(
+        and(
+          eq(transaksi.userId, userId),
+          isNull(transaksi.deletedAt)
+        )
+      )
       .orderBy(sql`${transaksi.tanggal} DESC`),
     
     db
@@ -165,7 +203,12 @@ export const getAllExportData = async (userId: string) => {
         catatan: tagihan.catatan,
       })
       .from(tagihan)
-      .where(eq(tagihan.userId, userId))
+      .where(
+        and(
+          eq(tagihan.userId, userId),
+          isNull(tagihan.deletedAt)
+        )
+      )
       .orderBy(tagihan.tanggalJatuhTempo),
       
     db

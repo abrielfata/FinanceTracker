@@ -14,6 +14,7 @@ import dashboardRoutes from './routes/dashboard';
 import notificationRoutes from './routes/notifications';
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3001;
 
 // ─── Middleware ───────────────────────────────────────────────────────────────

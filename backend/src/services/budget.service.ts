@@ -11,6 +11,7 @@ export const getSpendingSubquery = (userId: string, bulan: number, tahun: number
       AND t.kategori = budget.kategori
       AND EXTRACT(MONTH FROM t.tanggal) = ${bulan}
       AND EXTRACT(YEAR FROM t.tanggal) = ${tahun}
+      AND t.deleted_at IS NULL
   ), 0)`;
 };
 
