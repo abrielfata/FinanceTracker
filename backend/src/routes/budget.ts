@@ -14,13 +14,19 @@ const budgetSchema = z.object({
 });
 
 router.get('/', async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-  const { bulan, tahun } = req.query;
+  const { bulan, tahun, startDate, endDate } = req.query;
 
   try {
     const bulanNum = bulan ? parseInt(bulan as string) : new Date().getMonth() + 1;
     const tahunNum = tahun ? parseInt(tahun as string) : new Date().getFullYear();
 
-    const data = await BudgetService.getBudgetList(req.user!.id, bulanNum, tahunNum);
+    const fallbackStart = new Date(tahunNum, bulanNum - 1, 1).toISOString().split('T')[0];
+    const fallbackEnd = new Date(tahunNum, bulanNum, 0).toISOString().split('T')[0];
+
+    const finalStartDate = (startDate as string) || fallbackStart;
+    const finalEndDate = (endDate as string) || fallbackEnd;
+
+    const data = await BudgetService.getBudgetList(req.user!.id, bulanNum, tahunNum, finalStartDate, finalEndDate);
     res.json({ data });
   } catch (err) {
     next(err);

@@ -2,21 +2,20 @@ import { db } from '../db';
 import { budget, NewBudget } from '../db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { NotFoundError } from '../utils/errors';
-import { getFinancialMonthSql, getFinancialYearSql } from '../utils/dateUtils';
 
-export const getSpendingSubquery = (userId: string, bulan: number, tahun: number) => {
+export const getSpendingSubquery = (userId: string, startDate: string, endDate: string) => {
   return sql<number>`COALESCE((
     SELECT SUM(t.nominal) FROM transaksi t
     WHERE t.user_id = ${userId}
       AND t.jenis = 'pengeluaran'
       AND t.kategori = budget.kategori
-      AND ${getFinancialMonthSql(sql`t.tanggal`)} = ${bulan}
-      AND ${getFinancialYearSql(sql`t.tanggal`)} = ${tahun}
+      AND t.tanggal >= ${startDate}
+      AND t.tanggal <= ${endDate}
       AND t.deleted_at IS NULL
   ), 0)`;
 };
 
-export const getBudgetList = async (userId: string, bulanNum: number, tahunNum: number) => {
+export const getBudgetList = async (userId: string, bulanNum: number, tahunNum: number, startDate: string, endDate: string) => {
   return await db
     .select({
       id: budget.id,
@@ -24,7 +23,7 @@ export const getBudgetList = async (userId: string, bulanNum: number, tahunNum: 
       nominal: budget.nominal,
       bulan: budget.bulan,
       tahun: budget.tahun,
-      terpakai: getSpendingSubquery(userId, bulanNum, tahunNum),
+      terpakai: getSpendingSubquery(userId, startDate, endDate),
     })
     .from(budget)
     .where(
