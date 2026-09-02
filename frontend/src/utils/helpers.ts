@@ -65,62 +65,127 @@ export const getBudgetPersen = (terpakai: number, nominal: number) => {
   return Math.min((terpakai / nominal) * 100, 100);
 };
 
-export const exportToExcel = async (data: any[], filename: string) => {
-  if (data.length === 0) return;
-  
+export interface ExportData {
+  transaksi: any[];
+  tagihan: any[];
+  budget: any[];
+}
+
+export const exportToExcel = async (data: ExportData, filename: string) => {
   const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet('Transaksi');
-
-  // Define columns based on our TransaksiItem structure
-  worksheet.columns = [
-    { header: 'Tanggal', key: 'tanggal', width: 15 },
-    { header: 'Kategori', key: 'kategori', width: 25 },
-    { header: 'Deskripsi', key: 'deskripsi', width: 40 },
-    { header: 'Jenis', key: 'jenis', width: 15 },
-    { header: 'Nominal', key: 'nominal', width: 20 },
-  ];
-
-  // Style Header
-  worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-  worksheet.getRow(1).fill = {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FF1F2937' } // premium-charcoal
+  
+  // Header Style
+  const headerStyle = {
+    font: { bold: true, color: { argb: 'FFFFFFFF' } },
+    fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1F2937' } } as ExcelJS.Fill,
+    alignment: { vertical: 'middle', horizontal: 'center' } as Partial<ExcelJS.Alignment>
   };
-  worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-  // Add Data
-  data.forEach((item) => {
-    worksheet.addRow({
-      tanggal: item.tanggal, // Expected format YYYY-MM-DD
-      kategori: item.kategori,
-      deskripsi: item.deskripsi || '-',
-      jenis: item.jenis.toUpperCase(),
-      nominal: item.nominal
+  // --- SHEET 1: TRANSAKSI ---
+  if (data.transaksi?.length > 0) {
+    const ws1 = workbook.addWorksheet('Transaksi');
+    ws1.columns = [
+      { header: 'Tanggal', key: 'tanggal', width: 15 },
+      { header: 'Kategori', key: 'kategori', width: 25 },
+      { header: 'Deskripsi', key: 'deskripsi', width: 40 },
+      { header: 'Jenis', key: 'jenis', width: 15 },
+      { header: 'Nominal', key: 'nominal', width: 20 },
+    ];
+    
+    ws1.getRow(1).font = headerStyle.font;
+    ws1.getRow(1).fill = headerStyle.fill;
+    ws1.getRow(1).alignment = headerStyle.alignment;
+
+    data.transaksi.forEach((item) => {
+      ws1.addRow({
+        tanggal: item.tanggal,
+        kategori: item.kategori,
+        deskripsi: item.deskripsi || '-',
+        jenis: item.jenis.toUpperCase(),
+        nominal: item.nominal
+      });
     });
-  });
 
-  // Format Data Rows
-  worksheet.eachRow((row, rowNumber) => {
-    if (rowNumber > 1) {
-      // Date alignment
-      row.getCell('tanggal').alignment = { horizontal: 'center' };
-      // Jenis alignment and color
-      const jenisCell = row.getCell('jenis');
-      jenisCell.alignment = { horizontal: 'center' };
-      if (jenisCell.value === 'PEMASUKAN') {
-        jenisCell.font = { color: { argb: 'FF10B981' }, bold: true }; // Green
-      } else {
-        jenisCell.font = { color: { argb: 'FFEF4444' }, bold: true }; // Red
+    ws1.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) {
+        row.getCell('tanggal').alignment = { horizontal: 'center' };
+        const jenisCell = row.getCell('jenis');
+        jenisCell.alignment = { horizontal: 'center' };
+        jenisCell.font = { color: { argb: jenisCell.value === 'PEMASUKAN' ? 'FF10B981' : 'FFEF4444' }, bold: true };
+        row.getCell('nominal').numFmt = '"Rp"#,##0;[Red]\\-"Rp"#,##0';
       }
-      
-      // Nominal format (Accounting/Currency)
-      const nominalCell = row.getCell('nominal');
-      nominalCell.numFmt = '"Rp"#,##0;[Red]\-"Rp"#,##0';
-    }
-  });
+    });
+  }
 
-  // Generate Buffer and Save
+  // --- SHEET 2: TAGIHAN ---
+  if (data.tagihan?.length > 0) {
+    const ws2 = workbook.addWorksheet('Tagihan');
+    ws2.columns = [
+      { header: 'Nama Tagihan', key: 'nama', width: 30 },
+      { header: 'Kategori', key: 'kategori', width: 20 },
+      { header: 'Tgl Jatuh Tempo', key: 'tanggal', width: 15 },
+      { header: 'Nominal', key: 'nominal', width: 20 },
+      { header: 'Catatan', key: 'catatan', width: 40 },
+    ];
+    
+    ws2.getRow(1).font = headerStyle.font;
+    ws2.getRow(1).fill = headerStyle.fill;
+    ws2.getRow(1).alignment = headerStyle.alignment;
+
+    data.tagihan.forEach((item) => {
+      ws2.addRow({
+        nama: item.nama,
+        kategori: item.kategori,
+        tanggal: `Tgl ${item.tanggalJatuhTempo}`,
+        nominal: item.nominal,
+        catatan: item.catatan || '-'
+      });
+    });
+
+    ws2.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) {
+        row.getCell('tanggal').alignment = { horizontal: 'center' };
+        row.getCell('nominal').numFmt = '"Rp"#,##0;[Red]\\-"Rp"#,##0';
+      }
+    });
+  }
+
+  // --- SHEET 3: BUDGET ---
+  if (data.budget?.length > 0) {
+    const ws3 = workbook.addWorksheet('Budget');
+    ws3.columns = [
+      { header: 'Tahun', key: 'tahun', width: 10 },
+      { header: 'Bulan', key: 'bulan', width: 10 },
+      { header: 'Kategori', key: 'kategori', width: 25 },
+      { header: 'Nominal Budget', key: 'nominal', width: 20 },
+    ];
+    
+    ws3.getRow(1).font = headerStyle.font;
+    ws3.getRow(1).fill = headerStyle.fill;
+    ws3.getRow(1).alignment = headerStyle.alignment;
+
+    data.budget.forEach((item) => {
+      ws3.addRow({
+        tahun: item.tahun,
+        bulan: item.bulan,
+        kategori: item.kategori,
+        nominal: item.nominal
+      });
+    });
+
+    ws3.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) {
+        row.getCell('tahun').alignment = { horizontal: 'center' };
+        row.getCell('bulan').alignment = { horizontal: 'center' };
+        row.getCell('nominal').numFmt = '"Rp"#,##0;[Red]\\-"Rp"#,##0';
+      }
+    });
+  }
+  
+  if (workbook.worksheets.length === 0) {
+    workbook.addWorksheet('No Data');
+  }
+
   const buffer = await workbook.xlsx.writeBuffer();
   const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   saveAs(blob, `${filename}.xlsx`);
@@ -142,6 +207,10 @@ export const KATEGORI_ICON: Record<string, string> = {
   Bonus: 'redeem',
   'Hasil Investasi': 'trending_up',
   Pemberian: 'volunteer_activism',
+  'Uang Saku': 'payments',
+  Beasiswa: 'school',
+  'Kerja Sampingan': 'work',
+  'Hasil Jualan': 'storefront',
   Lainnya: 'category',
 };
 
@@ -161,6 +230,10 @@ export const KATEGORI_COLOR: Record<string, string> = {
   Bonus: 'bg-yellow-100 text-yellow-700',
   'Hasil Investasi': 'bg-blue-100 text-blue-700',
   Pemberian: 'bg-pink-100 text-pink-700',
+  'Uang Saku': 'bg-emerald-100 text-emerald-700',
+  Beasiswa: 'bg-indigo-100 text-indigo-700',
+  'Kerja Sampingan': 'bg-teal-100 text-teal-700',
+  'Hasil Jualan': 'bg-yellow-100 text-yellow-700',
   Lainnya: 'bg-gray-100 text-gray-600',
 };
 
@@ -176,7 +249,11 @@ export const KATEGORI_PENGELUARAN = [
 ];
 
 export const KATEGORI_PEMASUKAN = [
+  'Uang Saku',
   'Gaji',
+  'Beasiswa',
+  'Kerja Sampingan',
+  'Hasil Jualan',
   'Bonus',
   'Hasil Investasi',
   'Pemberian',

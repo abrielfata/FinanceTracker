@@ -138,3 +138,52 @@ export const getTrendSummary = async (userId: string) => {
 
   return trendData;
 };
+
+export const getAllExportData = async (userId: string) => {
+  const [transaksiData, tagihanData, budgetData] = await Promise.all([
+    db
+      .select({
+        id: transaksi.id,
+        jenis: transaksi.jenis,
+        nominal: transaksi.nominal,
+        kategori: transaksi.kategori,
+        deskripsi: transaksi.deskripsi,
+        tanggal: transaksi.tanggal,
+      })
+      .from(transaksi)
+      .where(eq(transaksi.userId, userId))
+      .orderBy(sql`${transaksi.tanggal} DESC`),
+    
+    db
+      .select({
+        id: tagihan.id,
+        nama: tagihan.nama,
+        nominal: tagihan.nominal,
+        tanggalJatuhTempo: tagihan.tanggalJatuhTempo,
+        kategori: tagihan.kategori,
+        isBerulang: tagihan.isBerulang,
+        catatan: tagihan.catatan,
+      })
+      .from(tagihan)
+      .where(eq(tagihan.userId, userId))
+      .orderBy(tagihan.tanggalJatuhTempo),
+      
+    db
+      .select({
+        id: budget.id,
+        bulan: budget.bulan,
+        tahun: budget.tahun,
+        kategori: budget.kategori,
+        nominal: budget.nominal,
+      })
+      .from(budget)
+      .where(eq(budget.userId, userId))
+      .orderBy(sql`${budget.tahun} DESC, ${budget.bulan} DESC`)
+  ]);
+
+  return {
+    transaksi: transaksiData,
+    tagihan: tagihanData,
+    budget: budgetData
+  };
+};

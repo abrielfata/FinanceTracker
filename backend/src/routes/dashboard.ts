@@ -30,4 +30,14 @@ router.get('/trend', async (req: AuthRequest, res: Response, next: NextFunction)
   }
 });
 
+// GET /api/dashboard/export
+router.get('/export', async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = await DashboardService.getAllExportData(req.user!.id);
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

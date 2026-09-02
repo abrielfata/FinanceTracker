@@ -44,6 +44,7 @@ export default function Transaksi() {
 
   // Confirm Dialog State
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -139,10 +140,17 @@ export default function Transaksi() {
     }
   };
 
-  const handleExportExcel = () => {
-    if (processedData.length === 0) return toast.error('Tidak ada data untuk diekspor');
-    exportToExcel(processedData, `Transaksi_${bulan}_${tahun}`);
-    toast.success('Data Excel berhasil diunduh');
+  const handleExportExcel = async () => {
+    try {
+      setIsExporting(true);
+      const res = await api.get('/dashboard/export');
+      await exportToExcel(res.data, `Fitrack_All_Data_${bulan}_${tahun}`);
+      toast.success('Seluruh data berhasil diunduh ke Excel');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Gagal mengekspor data');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // Process data based on search and sort
@@ -241,12 +249,13 @@ export default function Transaksi() {
 
           <div className="flex gap-3 w-full xl:w-auto mt-4 xl:mt-0">
             <button
-              onClick={handleExportExcel}
-              className="px-4 py-2 border border-outline-variant rounded-xl font-body text-body-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors flex items-center justify-center gap-2"
-            >
-              <span className="material-symbols-outlined text-[18px]">table_chart</span>
-              Excel
-            </button>
+            onClick={handleExportExcel}
+            disabled={isExporting}
+            className="hidden md:flex items-center gap-2 px-4 py-2 bg-white border border-outline-variant rounded-xl text-body-sm font-bold text-on-surface hover:bg-surface-container-low transition-colors disabled:opacity-50"
+          >
+            <span className="material-symbols-rounded text-[20px]">download</span>
+            {isExporting ? 'Mengekspor...' : 'Export Semua Data'}
+          </button>
             <button
               onClick={handleOpenAdd}
               className="bg-premium-charcoal flex-1 xl:flex-none text-white px-5 py-2.5 rounded-xl font-body text-body-sm font-medium flex items-center justify-center gap-2 hover:bg-premium-charcoal/90 transition-colors shadow-sm"
