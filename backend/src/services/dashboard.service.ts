@@ -127,61 +127,68 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
   };
 };
 
-export const getTrendSummary = async (userId: string) => {
-  // Trend selalu menggunakan kalender normal 6 bulan terakhir
+export const getTrendSummary = async (userId: string, filterStartDate?: string, filterEndDate?: string) => {
   const now = new Date();
-  const currentMonth = now.getMonth() + 1;
-  const currentYear = now.getFullYear();
+  const currentBulan = now.getMonth() + 1;
+  const currentTahun = now.getFullYear();
+  let baseStart: Date;
+  let baseEnd: Date;
 
-  let startMonth = currentMonth - 5;
-  let startYear = currentYear;
-  if (startMonth <= 0) {
-    startMonth += 12;
-    startYear -= 1;
-  }
-
-  const months = [];
-  for (let i = 5; i >= 0; i--) {
-    let m = currentMonth - i;
-    let y = currentYear;
-    if (m <= 0) {
-      m += 12;
-      y -= 1;
+  if (filterStartDate && filterEndDate) {
+    baseStart = new Date(filterStartDate);
+    baseEnd = new Date(filterEndDate);
+  } else {
+    // Default siklus bulan ini
+    let startM = currentBulan - 1;
+    let startY = currentTahun;
+    if (startM === 0) {
+      startM = 12;
+      startY -= 1;
     }
-    months.push({ bulan: m, tahun: y });
+    baseStart = new Date(startY, startM - 1, 26);
+    baseEnd = new Date(currentTahun, currentBulan - 1, 25);
   }
 
-  const rawData = await db
-    .select({
-      bulan: sql<number>`CAST(EXTRACT(MONTH FROM ${transaksi.tanggal}) AS INTEGER)`,
-      tahun: sql<number>`CAST(EXTRACT(YEAR FROM ${transaksi.tanggal}) AS INTEGER)`,
-      pemasukan: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0)`,
-      pengeluaran: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pengeluaran' THEN nominal ELSE 0 END), 0)`,
-    })
-    .from(transaksi)
-    .where(
-      and(
-        eq(transaksi.userId, userId),
-        isNull(transaksi.deletedAt),
-        sql`(${transaksi.tanggal} >= MAKE_DATE(${startYear}, ${startMonth}, 1))`
-      )
-    )
-    .groupBy(
-      sql`EXTRACT(YEAR FROM ${transaksi.tanggal})`,
-      sql`EXTRACT(MONTH FROM ${transaksi.tanggal})`
-    );
+  // Generate 6 periods relative to base dates
+  const periods = [];
+  for (let i = 0; i < 6; i++) {
+    // Subtract i months from baseStart and baseEnd
+    const s = new Date(baseStart.getFullYear(), baseStart.getMonth() - i, baseStart.getDate());
+    const e = new Date(baseEnd.getFullYear(), baseEnd.getMonth() - i, baseEnd.getDate());
+    periods.unshift({
+      start: s.toISOString().split('T')[0],
+      end: e.toISOString().split('T')[0],
+      labelMonth: e.getMonth() + 1,
+      labelYear: e.getFullYear()
+    });
+  }
+  // periods are ordered oldest to newest
 
-  const trendData = months.map(m => {
-    const found = rawData.find(r => r.bulan === m.bulan && r.tahun === m.tahun);
+  const promises = periods.map(async (p) => {
+    const [result] = await db
+      .select({
+        pemasukan: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0)`,
+        pengeluaran: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pengeluaran' THEN nominal ELSE 0 END), 0)`,
+      })
+      .from(transaksi)
+      .where(
+        and(
+          eq(transaksi.userId, userId),
+          isNull(transaksi.deletedAt),
+          sql`${transaksi.tanggal} >= ${p.start}`,
+          sql`${transaksi.tanggal} <= ${p.end}`
+        )
+      );
+
     return {
-      bulan: m.bulan,
-      tahun: m.tahun,
-      pemasukan: found ? Number(found.pemasukan) : 0,
-      pengeluaran: found ? Number(found.pengeluaran) : 0,
+      bulan: p.labelMonth,
+      tahun: p.labelYear,
+      pemasukan: Number(result?.pemasukan || 0),
+      pengeluaran: Number(result?.pengeluaran || 0)
     };
   });
 
-  return trendData;
+  return await Promise.all(promises);
 };
 
 export const getAllExportData = async (userId: string) => {
