@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { tagihan, tagihanBulan, NewTagihan } from '../db/schema';
+import { tagihan, tagihanBulan, NewTagihan, transaksi } from '../db/schema';
 import { eq, and } from 'drizzle-orm';
 import { NotFoundError } from '../utils/errors';
 
@@ -86,6 +86,21 @@ export const payTagihan = async (userId: string, tagihanBulanId: string) => {
     throw new NotFoundError('Data tagihan bulan tidak ditemukan');
   }
 
+  if (!data.tagihanId) return data;
+
+  const [baseTagihan] = await db.select().from(tagihan).where(eq(tagihan.id, data.tagihanId));
+  if (baseTagihan) {
+    await db.insert(transaksi).values({
+      userId,
+      jenis: 'pengeluaran',
+      nominal: baseTagihan.nominal,
+      kategori: baseTagihan.kategori,
+      deskripsi: `Bayar Tagihan: ${baseTagihan.nama}`,
+      tanggal: new Date().toISOString().split('T')[0],
+      tagihanBulanId: data.id,
+    });
+  }
+
   return data;
 };
 
@@ -99,6 +114,8 @@ export const cancelPayTagihan = async (userId: string, tagihanBulanId: string) =
   if (!data) {
     throw new NotFoundError('Data tagihan bulan tidak ditemukan');
   }
+
+  await db.delete(transaksi).where(eq(transaksi.tagihanBulanId, data.id));
 
   return data;
 };
