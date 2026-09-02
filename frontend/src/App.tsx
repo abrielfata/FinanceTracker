@@ -58,9 +58,16 @@ function App() {
   if (isInitializing) {
     return (
       <div className="min-h-screen bg-premium-base flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4 animate-pulse">
-          <img src="/logo.png" alt="FiTrack Logo" className="w-20 h-20 object-contain" />
-          <span className="font-headline text-xl font-bold text-on-surface tracking-tight">Memuat FiTrack...</span>
+        <div className="flex flex-col items-center gap-4">
+          <video 
+            src="/money-bag.mp4" 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className="w-32 h-32 object-contain"
+          />
+          <span className="font-headline text-xl font-bold text-on-surface tracking-tight animate-pulse">Memuat FiTrack...</span>
         </div>
       </div>
     );
