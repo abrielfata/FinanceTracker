@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { KATEGORI_PENGELUARAN, KATEGORI_PEMASUKAN } from '../../utils/helpers';
@@ -26,6 +26,7 @@ export default function TransaksiForm({ initialData, onSubmit, isLoading, onCanc
     handleSubmit,
     watch,
     setValue,
+    control,
     formState: { errors },
   } = useForm<TransaksiFormData>({
     resolver: zodResolver(transaksiSchema),
@@ -75,12 +76,23 @@ export default function TransaksiForm({ initialData, onSubmit, isLoading, onCanc
         <label htmlFor="nominal" className="block text-sm font-medium text-on-surface-variant mb-1">
           Nominal (Rp)
         </label>
-        <input
-          {...register('nominal', { valueAsNumber: true })}
-          type="number"
-          id="nominal"
-          className="appearance-none block w-full px-4 py-3 border border-outline-variant rounded-xl shadow-sm placeholder-outline focus:outline-none focus:ring-primary focus:border-primary text-headline-md font-bold bg-white transition-colors"
-          placeholder="0"
+        <Controller
+          name="nominal"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <input
+              type="text"
+              inputMode="numeric"
+              id="nominal"
+              value={value ? value.toLocaleString('id-ID') : ''}
+              onChange={(e) => {
+                const rawValue = e.target.value.replace(/\D/g, '');
+                onChange(rawValue ? parseInt(rawValue, 10) : undefined);
+              }}
+              className="appearance-none block w-full px-4 py-3 border border-outline-variant rounded-xl shadow-sm placeholder-outline focus:outline-none focus:ring-primary focus:border-primary text-headline-md font-bold bg-white transition-colors"
+              placeholder="0"
+            />
+          )}
         />
         {errors.nominal && <p className="mt-1 text-sm text-error">{errors.nominal.message}</p>}
       </div>
