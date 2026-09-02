@@ -255,7 +255,7 @@ export default function Tagihan() {
         title={editingData ? 'Edit Tagihan' : 'Buat Pengingat Tagihan'}
       >
         <TagihanForm
-          initialData={editingData || undefined}
+          initialData={editingData ? { ...editingData, catatan: editingData.catatan ?? undefined } : undefined}
           onSubmit={handleSubmitForm}
           isLoading={isSubmitting}
           onCancel={() => setIsModalOpen(false)}
