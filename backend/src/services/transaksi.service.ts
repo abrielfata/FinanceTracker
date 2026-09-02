@@ -2,6 +2,7 @@ import { db } from '../db';
 import { transaksi, NewTransaksi } from '../db/schema';
 import { eq, and, sql, isNull } from 'drizzle-orm';
 import { NotFoundError } from '../utils/errors';
+import { getFinancialMonthSql, getFinancialYearSql } from '../utils/dateUtils';
 
 interface TransaksiFilters {
   bulan?: string;
@@ -23,8 +24,8 @@ export const getTransaksiList = async (userId: string, filters: TransaksiFilters
   ];
 
   if (bulan && tahun) {
-    conditions.push(sql`EXTRACT(MONTH FROM ${transaksi.tanggal}) = ${parseInt(bulan)}`);
-    conditions.push(sql`EXTRACT(YEAR FROM ${transaksi.tanggal}) = ${parseInt(tahun)}`);
+    conditions.push(sql`${getFinancialMonthSql(transaksi.tanggal)} = ${parseInt(bulan)}`);
+    conditions.push(sql`${getFinancialYearSql(transaksi.tanggal)} = ${parseInt(tahun)}`);
   }
 
   if (jenis && (jenis === 'pemasukan' || jenis === 'pengeluaran')) {
