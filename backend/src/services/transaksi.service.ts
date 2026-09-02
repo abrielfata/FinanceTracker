@@ -1,6 +1,6 @@
 import { db } from '../db';
 import { transaksi, NewTransaksi } from '../db/schema';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, isNull } from 'drizzle-orm';
 import { NotFoundError } from '../utils/errors';
 
 interface TransaksiFilters {
@@ -17,7 +17,10 @@ export const getTransaksiList = async (userId: string, filters: TransaksiFilters
   const limitNum = parseInt(limit);
   const offset = (pageNum - 1) * limitNum;
 
-  const conditions = [eq(transaksi.userId, userId)];
+  const conditions = [
+    eq(transaksi.userId, userId),
+    isNull(transaksi.deletedAt),
+  ];
 
   if (bulan && tahun) {
     conditions.push(sql`EXTRACT(MONTH FROM ${transaksi.tanggal}) = ${parseInt(bulan)}`);
@@ -70,7 +73,8 @@ export const updateTransaksi = async (userId: string, transaksiId: string, data:
 };
 
 export const deleteTransaksi = async (userId: string, transaksiId: string) => {
-  const [deletedTransaksi] = await db.delete(transaksi)
+  const [deletedTransaksi] = await db.update(transaksi)
+    .set({ deletedAt: new Date() })
     .where(and(eq(transaksi.id, transaksiId), eq(transaksi.userId, userId)))
     .returning({ id: transaksi.id });
 

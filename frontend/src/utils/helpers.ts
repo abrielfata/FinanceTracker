@@ -192,75 +192,33 @@ export const exportToExcel = async (data: ExportData, filename: string) => {
 };
 
 // Kategori icons (Material Symbols)
-export const KATEGORI_ICON: Record<string, string> = {
-  'Makan & Minum': 'restaurant',
-  'Makanan & Minuman': 'restaurant',
-  Transportasi: 'directions_car',
-  Hiburan: 'movie',
-  Kesehatan: 'medical_services',
-  Pendidikan: 'school',
-  Tagihan: 'receipt',
-  Belanja: 'shopping_bag',
-  Pemasukan: 'account_balance',
-  Tabungan: 'savings',
-  Gaji: 'account_balance_wallet',
-  Bonus: 'redeem',
-  'Hasil Investasi': 'trending_up',
-  Pemberian: 'volunteer_activism',
-  'Uang Saku': 'payments',
-  Beasiswa: 'school',
-  'Kerja Sampingan': 'work',
-  'Hasil Jualan': 'storefront',
-  Lainnya: 'category',
-};
-
-// Kategori colors
-export const KATEGORI_COLOR: Record<string, string> = {
-  'Makan & Minum': 'bg-orange-100 text-orange-600',
-  'Makanan & Minuman': 'bg-orange-100 text-orange-600',
-  Transportasi: 'bg-blue-100 text-blue-600',
-  Hiburan: 'bg-purple-100 text-purple-600',
-  Kesehatan: 'bg-red-100 text-red-600',
-  Pendidikan: 'bg-indigo-100 text-indigo-600',
-  Tagihan: 'bg-yellow-100 text-yellow-700',
-  Belanja: 'bg-pink-100 text-pink-600',
-  Pemasukan: 'bg-emerald-100 text-emerald-700',
-  Tabungan: 'bg-teal-100 text-teal-700',
-  Gaji: 'bg-emerald-100 text-emerald-700',
-  Bonus: 'bg-yellow-100 text-yellow-700',
-  'Hasil Investasi': 'bg-blue-100 text-blue-700',
-  Pemberian: 'bg-pink-100 text-pink-700',
-  'Uang Saku': 'bg-emerald-100 text-emerald-700',
-  Beasiswa: 'bg-indigo-100 text-indigo-700',
-  'Kerja Sampingan': 'bg-teal-100 text-teal-700',
-  'Hasil Jualan': 'bg-yellow-100 text-yellow-700',
-  Lainnya: 'bg-gray-100 text-gray-600',
-};
-
-export const KATEGORI_PENGELUARAN = [
-  'Makan & Minum',
-  'Transportasi',
-  'Hiburan',
-  'Kesehatan',
-  'Pendidikan',
-  'Tagihan',
-  'Belanja',
-  'Lainnya',
+export const KATEGORI_CONFIG = [
+  { name: 'Makan & Minum', type: 'pengeluaran', icon: 'restaurant', color: 'bg-orange-100 text-orange-600' },
+  { name: 'Makanan & Minuman', type: 'pengeluaran', icon: 'restaurant', color: 'bg-orange-100 text-orange-600' },
+  { name: 'Transportasi', type: 'pengeluaran', icon: 'directions_car', color: 'bg-blue-100 text-blue-600' },
+  { name: 'Hiburan', type: 'pengeluaran', icon: 'movie', color: 'bg-purple-100 text-purple-600' },
+  { name: 'Kesehatan', type: 'pengeluaran', icon: 'medical_services', color: 'bg-red-100 text-red-600' },
+  { name: 'Pendidikan', type: 'pengeluaran', icon: 'school', color: 'bg-indigo-100 text-indigo-600' },
+  { name: 'Tagihan', type: 'pengeluaran', icon: 'receipt', color: 'bg-yellow-100 text-yellow-700' },
+  { name: 'Belanja', type: 'pengeluaran', icon: 'shopping_bag', color: 'bg-pink-100 text-pink-600' },
+  { name: 'Pemasukan', type: 'pemasukan', icon: 'account_balance', color: 'bg-emerald-100 text-emerald-700' },
+  { name: 'Tabungan', type: 'pengeluaran', icon: 'savings', color: 'bg-teal-100 text-teal-700' },
+  { name: 'Gaji', type: 'pemasukan', icon: 'account_balance_wallet', color: 'bg-emerald-100 text-emerald-700' },
+  { name: 'Bonus', type: 'pemasukan', icon: 'redeem', color: 'bg-yellow-100 text-yellow-700' },
+  { name: 'Hasil Investasi', type: 'pemasukan', icon: 'trending_up', color: 'bg-blue-100 text-blue-700' },
+  { name: 'Pemberian', type: 'pemasukan', icon: 'volunteer_activism', color: 'bg-pink-100 text-pink-700' },
+  { name: 'Uang Saku', type: 'pemasukan', icon: 'payments', color: 'bg-emerald-100 text-emerald-700' },
+  { name: 'Beasiswa', type: 'pemasukan', icon: 'school', color: 'bg-indigo-100 text-indigo-700' },
+  { name: 'Kerja Sampingan', type: 'pemasukan', icon: 'work', color: 'bg-teal-100 text-teal-700' },
+  { name: 'Hasil Jualan', type: 'pemasukan', icon: 'storefront', color: 'bg-yellow-100 text-yellow-700' },
+  { name: 'Lainnya', type: 'lainnya', icon: 'category', color: 'bg-gray-100 text-gray-600' },
 ];
 
-export const KATEGORI_PEMASUKAN = [
-  'Uang Saku',
-  'Gaji',
-  'Beasiswa',
-  'Kerja Sampingan',
-  'Hasil Jualan',
-  'Bonus',
-  'Hasil Investasi',
-  'Pemberian',
-  'Lainnya',
-];
-
-export const KATEGORI_LIST = Array.from(new Set([...KATEGORI_PENGELUARAN, ...KATEGORI_PEMASUKAN]));
+export const KATEGORI_ICON = Object.fromEntries(KATEGORI_CONFIG.map(k => [k.name, k.icon])) as Record<string, string>;
+export const KATEGORI_COLOR = Object.fromEntries(KATEGORI_CONFIG.map(k => [k.name, k.color])) as Record<string, string>;
+export const KATEGORI_PENGELUARAN = KATEGORI_CONFIG.filter(k => k.type === 'pengeluaran').map(k => k.name);
+export const KATEGORI_PEMASUKAN = KATEGORI_CONFIG.filter(k => k.type === 'pemasukan').map(k => k.name);
+export const KATEGORI_LIST = Array.from(new Set(KATEGORI_CONFIG.map(k => k.name)));
 
 export const getGreeting = (): string => {
   const hour = new Date().getHours();

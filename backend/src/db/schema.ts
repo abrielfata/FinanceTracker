@@ -9,6 +9,7 @@ import {
   timestamp,
   unique,
   check,
+  index,
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
@@ -33,6 +34,7 @@ export const tagihan = pgTable('tagihan', {
   kategori: text('kategori').notNull().default('Lainnya'),
   catatan: text('catatan'),
   isBerulang: boolean('is_berulang').default(true),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 });
 
@@ -68,8 +70,11 @@ export const transaksi = pgTable('transaksi', {
   deskripsi: text('deskripsi'),
   tanggal: date('tanggal').notNull().default(sql`CURRENT_DATE`),
   tagihanBulanId: uuid('tagihan_bulan_id').references(() => tagihanBulan.id, { onDelete: 'set null' }),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-});
+},
+(t) => [index('user_tanggal_idx').on(t.userId, t.tanggal)]
+);
 
 // ─── Budget ───────────────────────────────────────────────────────────────────
 export const budget = pgTable(
