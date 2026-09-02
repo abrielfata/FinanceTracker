@@ -118,7 +118,7 @@ export default function Dashboard() {
     );
   }
 
-  const chartData = [...trendData].reverse().map(d => ({
+  const chartData = [...trendData].map(d => ({
     name: `${BULAN_NAMA[d.bulan - 1]} ${d.tahun.toString().slice(-2)}`,
     Pemasukan: d.pemasukan,
     Pengeluaran: d.pengeluaran,
