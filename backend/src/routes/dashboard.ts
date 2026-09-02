@@ -29,8 +29,9 @@ router.get('/summary', async (req: AuthRequest, res: Response, next: NextFunctio
 
 // GET /api/dashboard/trend
 router.get('/trend', async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  const { startDate, endDate } = req.query;
   try {
-    const data = await DashboardService.getTrendSummary(req.user!.id);
+    const data = await DashboardService.getTrendSummary(req.user!.id, startDate as string, endDate as string);
     res.json(data);
   } catch (err) {
     next(err);

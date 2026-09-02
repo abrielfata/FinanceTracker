@@ -70,7 +70,7 @@ export default function Dashboard() {
     try {
       const [summaryRes, trendRes] = await Promise.all([
         api.get('/dashboard/summary', { params: { startDate, endDate } }),
-        api.get('/dashboard/trend')
+        api.get('/dashboard/trend', { params: { startDate, endDate } })
       ]);
       setData(summaryRes.data);
       setTrendData(trendRes.data);
