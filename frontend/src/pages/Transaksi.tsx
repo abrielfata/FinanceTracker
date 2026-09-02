@@ -3,7 +3,7 @@ import Header from '../components/layout/Header';
 import Modal from '../components/ui/Modal';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import Skeleton from '../components/ui/Skeleton';
-import MonthSelector from '../components/ui/MonthSelector';
+import DateRangeFilter from '../components/ui/DateRangeFilter';
 import DropdownFilter from '../components/ui/DropdownFilter';
 import TransaksiForm, { type TransaksiFormData } from '../components/transaksi/TransaksiForm';
 import toast from 'react-hot-toast';
@@ -36,8 +36,8 @@ export default function Transaksi() {
       startM = 12;
       startY -= 1;
     }
-    const start = `${startY}-${String(startM).padStart(2, '0')}-25`;
-    const end = `${tahun}-${String(bulan).padStart(2, '0')}-24`;
+    const start = `${startY}-${String(startM).padStart(2, '0')}-26`;
+    const end = `${tahun}-${String(bulan).padStart(2, '0')}-25`;
     return { start, end };
   };
 
@@ -259,37 +259,15 @@ export default function Transaksi() {
 
           {/* Bottom Row: Filters */}
           <div className="flex flex-wrap items-center gap-3">
-            <MonthSelector 
-              selectedBulan={bulan}
-              selectedTahun={tahun}
-              onChange={(b, t) => { 
-                setBulan(b); 
-                setTahun(t); 
-                const range = calculateDateRange(b, t);
-                setStartDate(range.start);
-                setEndDate(range.end);
+            <DateRangeFilter 
+              startDate={startDate}
+              endDate={endDate}
+              onChange={(start, end) => {
+                setStartDate(start);
+                setEndDate(end);
               }}
             />
             
-            <div className="flex items-center gap-2 text-sm text-on-surface-variant bg-white px-3 py-2 rounded-xl border border-outline-variant shadow-sm h-11">
-              <span className="material-symbols-outlined text-[18px]">calendar_today</span>
-              <input 
-                type="date" 
-                value={startDate} 
-                onChange={(e) => setStartDate(e.target.value)}
-                className="bg-transparent outline-none cursor-pointer text-on-surface font-medium max-w-[120px]"
-              />
-              <span className="text-outline-variant">-</span>
-              <input 
-                type="date" 
-                value={endDate} 
-                onChange={(e) => setEndDate(e.target.value)}
-                className="bg-transparent outline-none cursor-pointer text-on-surface font-medium max-w-[120px]"
-              />
-            </div>
-            
-            <div className="h-6 w-[1px] bg-premium-border hidden sm:block mx-1"></div>
-
             <DropdownFilter
               value={jenisFilter}
               onChange={(val) => setJenisFilter(val as any)}

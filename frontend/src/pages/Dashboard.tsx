@@ -3,7 +3,7 @@ import Header from '../components/layout/Header';
 import api from '../lib/axios';
 import { formatRupiah, KATEGORI_ICON } from '../utils/helpers';
 import { Link } from 'react-router-dom';
-import MonthSelector from '../components/ui/MonthSelector';
+import DateRangeFilter from '../components/ui/DateRangeFilter';
 import Skeleton from '../components/ui/Skeleton';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -46,9 +46,6 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   
   // Date Selector State
-  const [selectedBulan, setSelectedBulan] = useState(new Date().getMonth() + 1);
-  const [selectedTahun, setSelectedTahun] = useState(new Date().getFullYear());
-
   const calculateDateRange = (bulan: number, tahun: number) => {
     let startM = bulan - 1;
     let startY = tahun;
@@ -56,23 +53,23 @@ export default function Dashboard() {
       startM = 12;
       startY -= 1;
     }
-    const start = `${startY}-${String(startM).padStart(2, '0')}-25`;
-    const end = `${tahun}-${String(bulan).padStart(2, '0')}-24`;
+    const start = `${startY}-${String(startM).padStart(2, '0')}-26`;
+    const end = `${tahun}-${String(bulan).padStart(2, '0')}-25`;
     return { start, end };
   };
 
-  const [startDate, setStartDate] = useState(() => calculateDateRange(selectedBulan, selectedTahun).start);
-  const [endDate, setEndDate] = useState(() => calculateDateRange(selectedBulan, selectedTahun).end);
+  const [startDate, setStartDate] = useState(() => calculateDateRange(new Date().getMonth() + 1, new Date().getFullYear()).start);
+  const [endDate, setEndDate] = useState(() => calculateDateRange(new Date().getMonth() + 1, new Date().getFullYear()).end);
 
   useEffect(() => {
     fetchSummary();
-  }, [selectedBulan, selectedTahun, startDate, endDate]);
+  }, [startDate, endDate]);
 
   const fetchSummary = async () => {
     setIsLoading(true);
     try {
       const [summaryRes, trendRes] = await Promise.all([
-        api.get('/dashboard/summary', { params: { bulan: selectedBulan, tahun: selectedTahun, startDate, endDate } }),
+        api.get('/dashboard/summary', { params: { startDate, endDate } }),
         api.get('/dashboard/trend')
       ]);
       setData(summaryRes.data);
@@ -84,13 +81,7 @@ export default function Dashboard() {
     }
   };
 
-  const handleMonthChange = (bulan: number, tahun: number) => {
-    setSelectedBulan(bulan);
-    setSelectedTahun(tahun);
-    const range = calculateDateRange(bulan, tahun);
-    setStartDate(range.start);
-    setEndDate(range.end);
-  };
+  // Removed handleMonthChange since DateRangeFilter handles changes directly
 
   if (isLoading || !data) {
     return (
@@ -154,28 +145,14 @@ export default function Dashboard() {
         {/* Month Selector & Add Action */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-lg gap-4 relative z-20">
           <div className="flex flex-col gap-2">
-            <MonthSelector 
-              label="Ringkasan bulan ini"
-              selectedBulan={selectedBulan}
-              selectedTahun={selectedTahun}
-              onChange={handleMonthChange}
+            <DateRangeFilter
+              startDate={startDate}
+              endDate={endDate}
+              onChange={(start, end) => {
+                setStartDate(start);
+                setEndDate(end);
+              }}
             />
-            <div className="flex items-center gap-2 text-sm text-on-surface-variant bg-surface-container-lowest px-3 py-2 rounded-xl border border-premium-border shadow-sm">
-              <span className="material-symbols-outlined text-[18px]">calendar_today</span>
-              <input 
-                type="date" 
-                value={startDate} 
-                onChange={(e) => setStartDate(e.target.value)}
-                className="bg-transparent outline-none cursor-pointer text-on-surface font-medium"
-              />
-              <span className="text-premium-border">/</span>
-              <input 
-                type="date" 
-                value={endDate} 
-                onChange={(e) => setEndDate(e.target.value)}
-                className="bg-transparent outline-none cursor-pointer text-on-surface font-medium"
-              />
-            </div>
           </div>
           <Link
             to="/transaksi"
