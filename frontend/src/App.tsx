@@ -58,9 +58,13 @@ function App() {
   if (isInitializing) {
     return (
       <div className="min-h-screen bg-premium-base flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4 animate-pulse">
-          <img src="/logo.png" alt="FiTrack Logo" className="w-20 h-20 object-contain" />
-          <span className="font-headline text-xl font-bold text-on-surface tracking-tight">Memuat FiTrack...</span>
+        <div className="flex flex-col items-center gap-6">
+          <div className="relative flex items-center justify-center w-24 h-24">
+            <div className="absolute inset-0 rounded-full border-[4px] border-primary/10"></div>
+            <div className="absolute inset-0 rounded-full border-[4px] border-primary border-t-transparent animate-spin"></div>
+            <img src="/logo.png" alt="Logo" className="w-14 h-14 object-contain animate-pulse" />
+          </div>
+          <span className="font-headline text-2xl font-bold text-on-surface tracking-tight">FiTrack</span>
         </div>
       </div>
     );
