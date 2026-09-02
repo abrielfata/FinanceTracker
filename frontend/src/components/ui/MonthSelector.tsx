@@ -51,10 +51,15 @@ export default function MonthSelector({
       )}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 font-headline text-headline-md text-on-surface hover:text-primary transition-colors focus:outline-none rounded-lg focus:ring-2 focus:ring-primary/20 p-1 -ml-1 whitespace-nowrap bg-transparent"
+        className={`flex items-center gap-2 text-body-sm font-medium border px-4 py-2 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 whitespace-nowrap shadow-sm ${
+          isOpen 
+            ? 'bg-primary-fixed/10 border-primary/30 text-primary' 
+            : 'bg-surface-container-lowest border-outline-variant text-on-surface hover:bg-surface-container-low'
+        }`}
       >
+        <span className="material-symbols-outlined text-[18px]">calendar_month</span>
         {NAMA_BULAN[selectedBulan - 1]} {selectedTahun}
-        <span className={`material-symbols-outlined transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
+        <span className={`material-symbols-outlined text-[18px] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
           expand_more
         </span>
       </button>
