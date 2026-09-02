@@ -223,39 +223,72 @@ export default function Transaksi() {
       <main className="px-xl pt-lg pb-xxl max-w-[1280px] mx-auto animate-fade-in">
         
         {/* Actions & Filters */}
-        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-lg gap-4 relative z-20">
-          <div className="flex flex-wrap items-center gap-4 w-full xl:w-auto">
-            <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-              <MonthSelector 
-                selectedBulan={bulan}
-                selectedTahun={tahun}
-                onChange={(b, t) => { 
-                  setBulan(b); 
-                  setTahun(t); 
-                  const range = calculateDateRange(b, t);
-                  setStartDate(range.start);
-                  setEndDate(range.end);
-                }}
+        <div className="flex flex-col gap-4 mb-lg relative z-20">
+          
+          {/* Top Row: Search & Actions */}
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+            <div className="relative flex-1 w-full">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+              <input 
+                type="text" 
+                placeholder="Cari transaksi berdasarkan kategori atau deskripsi..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-11 pr-4 py-3 border border-outline-variant rounded-xl text-body-md focus:outline-none focus:ring-primary focus:border-primary transition-colors bg-white text-on-surface shadow-sm"
               />
-              <div className="flex items-center gap-2 text-sm text-on-surface-variant bg-white px-3 py-2 rounded-xl border border-outline-variant shadow-sm h-11">
-                <span className="material-symbols-outlined text-[18px]">calendar_today</span>
-                <input 
-                  type="date" 
-                  value={startDate} 
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="bg-transparent outline-none cursor-pointer text-on-surface font-medium"
-                />
-                <span className="text-outline-variant">/</span>
-                <input 
-                  type="date" 
-                  value={endDate} 
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-transparent outline-none cursor-pointer text-on-surface font-medium"
-                />
-              </div>
+            </div>
+
+            <div className="flex gap-3 w-full sm:w-auto">
+              <button
+                onClick={handleExportExcel}
+                disabled={isExporting}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-white border border-outline-variant rounded-xl text-body-sm font-bold text-on-surface hover:bg-surface-container-low transition-colors shadow-sm disabled:opacity-50"
+              >
+                <span className="material-symbols-rounded text-[20px]">download</span>
+                <span className="hidden sm:inline">{isExporting ? 'Mengekspor...' : 'Export'}</span>
+              </button>
+              <button
+                onClick={handleOpenAdd}
+                className="flex-1 sm:flex-none bg-premium-charcoal text-white px-6 py-3 rounded-xl font-body text-body-sm font-medium flex items-center justify-center gap-2 hover:bg-premium-charcoal/90 transition-colors shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[20px]">add</span>
+                Tambah
+              </button>
+            </div>
+          </div>
+
+          {/* Bottom Row: Filters */}
+          <div className="flex flex-wrap items-center gap-3">
+            <MonthSelector 
+              selectedBulan={bulan}
+              selectedTahun={tahun}
+              onChange={(b, t) => { 
+                setBulan(b); 
+                setTahun(t); 
+                const range = calculateDateRange(b, t);
+                setStartDate(range.start);
+                setEndDate(range.end);
+              }}
+            />
+            
+            <div className="flex items-center gap-2 text-sm text-on-surface-variant bg-white px-3 py-2 rounded-xl border border-outline-variant shadow-sm h-11">
+              <span className="material-symbols-outlined text-[18px]">calendar_today</span>
+              <input 
+                type="date" 
+                value={startDate} 
+                onChange={(e) => setStartDate(e.target.value)}
+                className="bg-transparent outline-none cursor-pointer text-on-surface font-medium max-w-[120px]"
+              />
+              <span className="text-outline-variant">-</span>
+              <input 
+                type="date" 
+                value={endDate} 
+                onChange={(e) => setEndDate(e.target.value)}
+                className="bg-transparent outline-none cursor-pointer text-on-surface font-medium max-w-[120px]"
+              />
             </div>
             
-            <div className="h-6 w-[1px] bg-premium-border hidden sm:block"></div>
+            <div className="h-6 w-[1px] bg-premium-border hidden sm:block mx-1"></div>
 
             <DropdownFilter
               value={jenisFilter}
@@ -277,35 +310,6 @@ export default function Transaksi() {
                 { value: 'terkecil', label: 'Terkecil' },
               ]}
             />
-
-            <div className="relative flex-1 min-w-[200px] w-full sm:w-auto">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
-              <input 
-                type="text" 
-                placeholder="Cari transaksi..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-outline-variant rounded-xl text-body-sm focus:outline-none focus:ring-primary focus:border-primary transition-colors bg-white text-on-surface"
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-3 w-full xl:w-auto mt-4 xl:mt-0">
-            <button
-            onClick={handleExportExcel}
-            disabled={isExporting}
-            className="hidden md:flex items-center gap-2 px-4 py-2 bg-white border border-outline-variant rounded-xl text-body-sm font-bold text-on-surface hover:bg-surface-container-low transition-colors disabled:opacity-50"
-          >
-            <span className="material-symbols-rounded text-[20px]">download</span>
-            {isExporting ? 'Mengekspor...' : 'Export Semua Data'}
-          </button>
-            <button
-              onClick={handleOpenAdd}
-              className="bg-premium-charcoal flex-1 xl:flex-none text-white px-5 py-2.5 rounded-xl font-body text-body-sm font-medium flex items-center justify-center gap-2 hover:bg-premium-charcoal/90 transition-colors shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[20px]">add</span>
-              Tambah
-            </button>
           </div>
         </div>
 
