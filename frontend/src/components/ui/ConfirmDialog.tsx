@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import Modal from './Modal';
 
 interface ConfirmDialogProps {

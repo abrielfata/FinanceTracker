@@ -380,7 +380,7 @@ export default function Transaksi() {
         title={editingData ? 'Edit Transaksi' : 'Tambah Transaksi'}
       >
         <TransaksiForm
-          initialData={editingData || undefined}
+          initialData={editingData ? { ...editingData, deskripsi: editingData.deskripsi ?? undefined } : undefined}
           onSubmit={handleSubmitForm}
           isLoading={isSubmitting}
           onCancel={() => setIsModalOpen(false)}

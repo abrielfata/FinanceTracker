@@ -1,4 +1,5 @@
-import { ReactNode, useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { getGreeting } from '../../utils/helpers';
 import NotificationDropdown from './NotificationDropdown';
