@@ -2,6 +2,7 @@ import { db } from '../db';
 import { budget, NewBudget } from '../db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { NotFoundError } from '../utils/errors';
+import { getFinancialMonthSql, getFinancialYearSql } from '../utils/dateUtils';
 
 export const getSpendingSubquery = (userId: string, bulan: number, tahun: number) => {
   return sql<number>`COALESCE((
@@ -9,8 +10,8 @@ export const getSpendingSubquery = (userId: string, bulan: number, tahun: number
     WHERE t.user_id = ${userId}
       AND t.jenis = 'pengeluaran'
       AND t.kategori = budget.kategori
-      AND EXTRACT(MONTH FROM t.tanggal) = ${bulan}
-      AND EXTRACT(YEAR FROM t.tanggal) = ${tahun}
+      AND ${getFinancialMonthSql(sql`t.tanggal`)} = ${bulan}
+      AND ${getFinancialYearSql(sql`t.tanggal`)} = ${tahun}
       AND t.deleted_at IS NULL
   ), 0)`;
 };
