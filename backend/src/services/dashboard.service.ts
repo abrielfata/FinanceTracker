@@ -1,12 +1,20 @@
 import { db } from '../db';
 import { transaksi, tagihan, tagihanBulan, budget } from '../db/schema';
-import { eq, and, sql, isNull } from 'drizzle-orm';
+import { eq, and, sql, isNull, gte, lte } from 'drizzle-orm';
 import { getSpendingSubquery } from './budget.service';
-import { getFinancialMonthSql, getFinancialYearSql } from '../utils/dateUtils';
 
-export const getDashboardSummary = async (userId: string, bulanNum: number, tahunNum: number) => {
-  const bulanLalu = bulanNum === 1 ? 12 : bulanNum - 1;
-  const tahunLalu = bulanNum === 1 ? tahunNum - 1 : tahunNum;
+export const getDashboardSummary = async (userId: string, bulanNum: number, tahunNum: number, startDate: string, endDate: string) => {
+  // Hitung range tanggal untuk bulan lalu
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  const prevStart = new Date(start);
+  prevStart.setMonth(prevStart.getMonth() - 1);
+  const prevEnd = new Date(end);
+  prevEnd.setMonth(prevEnd.getMonth() - 1);
+
+  const startDateLalu = prevStart.toISOString().split('T')[0];
+  const endDateLalu = prevEnd.toISOString().split('T')[0];
 
   const [
     [summary],
@@ -14,7 +22,7 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
     budgetSummary,
     [summaryLalu]
   ] = await Promise.all([
-    // 1. Total pemasukan & pengeluaran bulan ini
+    // 1. Total pemasukan & pengeluaran bulan ini (berdasarkan custom date range)
     db
       .select({
         pemasukan: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0)`,
@@ -25,12 +33,12 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
         and(
           eq(transaksi.userId, userId),
           isNull(transaksi.deletedAt),
-          sql`${getFinancialMonthSql(transaksi.tanggal)} = ${bulanNum}`,
-          sql`${getFinancialYearSql(transaksi.tanggal)} = ${tahunNum}`
+          gte(transaksi.tanggal, startDate),
+          lte(transaksi.tanggal, endDate)
         )
       ),
 
-    // 2. Tagihan terdekat (belum lunas, bulan ini, max 5)
+    // 2. Tagihan terdekat (belum lunas, berdasar bulan kalender)
     db
       .select({
         id: tagihan.id,
@@ -59,13 +67,13 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
       .orderBy(tagihan.tanggalJatuhTempo)
       .limit(5),
 
-    // 3. Budget summary dengan spending
+    // 3. Budget summary dengan spending (menggunakan date range di subquery)
     db
       .select({
         id: budget.id,
         kategori: budget.kategori,
         nominal: budget.nominal,
-        terpakai: getSpendingSubquery(userId, bulanNum, tahunNum),
+        terpakai: getSpendingSubquery(userId, startDate, endDate),
       })
       .from(budget)
       .where(
@@ -87,8 +95,8 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
         and(
           eq(transaksi.userId, userId),
           isNull(transaksi.deletedAt),
-          sql`${getFinancialMonthSql(transaksi.tanggal)} = ${bulanLalu}`,
-          sql`${getFinancialYearSql(transaksi.tanggal)} = ${tahunLalu}`
+          gte(transaksi.tanggal, startDateLalu),
+          lte(transaksi.tanggal, endDateLalu)
         )
       )
   ]);
@@ -108,6 +116,8 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
   return {
     bulan: bulanNum,
     tahun: tahunNum,
+    startDate,
+    endDate,
     saldo,
     pemasukan,
     pengeluaran,
@@ -118,6 +128,7 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
 };
 
 export const getTrendSummary = async (userId: string) => {
+  // Trend selalu menggunakan kalender normal 6 bulan terakhir
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
@@ -142,8 +153,8 @@ export const getTrendSummary = async (userId: string) => {
 
   const rawData = await db
     .select({
-      bulan: sql<number>`CAST(${getFinancialMonthSql(transaksi.tanggal)} AS INTEGER)`,
-      tahun: sql<number>`CAST(${getFinancialYearSql(transaksi.tanggal)} AS INTEGER)`,
+      bulan: sql<number>`CAST(EXTRACT(MONTH FROM ${transaksi.tanggal}) AS INTEGER)`,
+      tahun: sql<number>`CAST(EXTRACT(YEAR FROM ${transaksi.tanggal}) AS INTEGER)`,
       pemasukan: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0)`,
       pengeluaran: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pengeluaran' THEN nominal ELSE 0 END), 0)`,
     })
@@ -152,12 +163,12 @@ export const getTrendSummary = async (userId: string) => {
       and(
         eq(transaksi.userId, userId),
         isNull(transaksi.deletedAt),
-        sql`${getFinancialYearSql(transaksi.tanggal)} * 100 + ${getFinancialMonthSql(transaksi.tanggal)} >= ${startYear * 100 + startMonth}`
+        sql`(${transaksi.tanggal} >= MAKE_DATE(${startYear}, ${startMonth}, 1))`
       )
     )
     .groupBy(
-      getFinancialYearSql(transaksi.tanggal),
-      getFinancialMonthSql(transaksi.tanggal)
+      sql`EXTRACT(YEAR FROM ${transaksi.tanggal})`,
+      sql`EXTRACT(MONTH FROM ${transaksi.tanggal})`
     );
 
   const trendData = months.map(m => {

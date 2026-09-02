@@ -49,15 +49,30 @@ export default function Dashboard() {
   const [selectedBulan, setSelectedBulan] = useState(new Date().getMonth() + 1);
   const [selectedTahun, setSelectedTahun] = useState(new Date().getFullYear());
 
+  const calculateDateRange = (bulan: number, tahun: number) => {
+    let startM = bulan - 1;
+    let startY = tahun;
+    if (startM === 0) {
+      startM = 12;
+      startY -= 1;
+    }
+    const start = `${startY}-${String(startM).padStart(2, '0')}-25`;
+    const end = `${tahun}-${String(bulan).padStart(2, '0')}-24`;
+    return { start, end };
+  };
+
+  const [startDate, setStartDate] = useState(() => calculateDateRange(selectedBulan, selectedTahun).start);
+  const [endDate, setEndDate] = useState(() => calculateDateRange(selectedBulan, selectedTahun).end);
+
   useEffect(() => {
     fetchSummary();
-  }, [selectedBulan, selectedTahun]);
+  }, [selectedBulan, selectedTahun, startDate, endDate]);
 
   const fetchSummary = async () => {
     setIsLoading(true);
     try {
       const [summaryRes, trendRes] = await Promise.all([
-        api.get('/dashboard/summary', { params: { bulan: selectedBulan, tahun: selectedTahun } }),
+        api.get('/dashboard/summary', { params: { bulan: selectedBulan, tahun: selectedTahun, startDate, endDate } }),
         api.get('/dashboard/trend')
       ]);
       setData(summaryRes.data);
@@ -72,6 +87,9 @@ export default function Dashboard() {
   const handleMonthChange = (bulan: number, tahun: number) => {
     setSelectedBulan(bulan);
     setSelectedTahun(tahun);
+    const range = calculateDateRange(bulan, tahun);
+    setStartDate(range.start);
+    setEndDate(range.end);
   };
 
   if (isLoading || !data) {
@@ -135,12 +153,30 @@ export default function Dashboard() {
         
         {/* Month Selector & Add Action */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-lg gap-4 relative z-20">
-          <MonthSelector 
-            label="Ringkasan bulan ini"
-            selectedBulan={selectedBulan}
-            selectedTahun={selectedTahun}
-            onChange={handleMonthChange}
-          />
+          <div className="flex flex-col gap-2">
+            <MonthSelector 
+              label="Ringkasan bulan ini"
+              selectedBulan={selectedBulan}
+              selectedTahun={selectedTahun}
+              onChange={handleMonthChange}
+            />
+            <div className="flex items-center gap-2 text-sm text-on-surface-variant bg-surface-container-lowest px-3 py-2 rounded-xl border border-premium-border shadow-sm">
+              <span className="material-symbols-outlined text-[18px]">calendar_today</span>
+              <input 
+                type="date" 
+                value={startDate} 
+                onChange={(e) => setStartDate(e.target.value)}
+                className="bg-transparent outline-none cursor-pointer text-on-surface font-medium"
+              />
+              <span className="text-premium-border">/</span>
+              <input 
+                type="date" 
+                value={endDate} 
+                onChange={(e) => setEndDate(e.target.value)}
+                className="bg-transparent outline-none cursor-pointer text-on-surface font-medium"
+              />
+            </div>
+          </div>
           <Link
             to="/transaksi"
             className="bg-premium-charcoal text-white px-5 py-3 rounded-xl font-body font-medium flex items-center gap-2 hover:bg-premium-charcoal/90 transition-colors shadow-sm"

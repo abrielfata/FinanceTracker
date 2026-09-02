@@ -1,19 +1,18 @@
 import { db } from '../db';
 import { transaksi, NewTransaksi } from '../db/schema';
-import { eq, and, sql, isNull } from 'drizzle-orm';
+import { eq, and, sql, isNull, gte, lte } from 'drizzle-orm';
 import { NotFoundError } from '../utils/errors';
-import { getFinancialMonthSql, getFinancialYearSql } from '../utils/dateUtils';
 
 interface TransaksiFilters {
-  bulan?: string;
-  tahun?: string;
+  startDate?: string;
+  endDate?: string;
   jenis?: string;
   page?: string;
   limit?: string;
 }
 
 export const getTransaksiList = async (userId: string, filters: TransaksiFilters) => {
-  const { bulan, tahun, jenis, page = '1', limit = '10' } = filters;
+  const { startDate, endDate, jenis, page = '1', limit = '10' } = filters;
   const pageNum = parseInt(page);
   const limitNum = parseInt(limit);
   const offset = (pageNum - 1) * limitNum;
@@ -23,9 +22,9 @@ export const getTransaksiList = async (userId: string, filters: TransaksiFilters
     isNull(transaksi.deletedAt),
   ];
 
-  if (bulan && tahun) {
-    conditions.push(sql`${getFinancialMonthSql(transaksi.tanggal)} = ${parseInt(bulan)}`);
-    conditions.push(sql`${getFinancialYearSql(transaksi.tanggal)} = ${parseInt(tahun)}`);
+  if (startDate && endDate) {
+    conditions.push(gte(transaksi.tanggal, startDate));
+    conditions.push(lte(transaksi.tanggal, endDate));
   }
 
   if (jenis && (jenis === 'pemasukan' || jenis === 'pengeluaran')) {

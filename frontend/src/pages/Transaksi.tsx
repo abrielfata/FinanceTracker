@@ -28,6 +28,22 @@ export default function Transaksi() {
   // Filters & Search
   const [bulan, setBulan] = useState(new Date().getMonth() + 1);
   const [tahun, setTahun] = useState(new Date().getFullYear());
+
+  const calculateDateRange = (bulan: number, tahun: number) => {
+    let startM = bulan - 1;
+    let startY = tahun;
+    if (startM === 0) {
+      startM = 12;
+      startY -= 1;
+    }
+    const start = `${startY}-${String(startM).padStart(2, '0')}-25`;
+    const end = `${tahun}-${String(bulan).padStart(2, '0')}-24`;
+    return { start, end };
+  };
+
+  const [startDate, setStartDate] = useState(() => calculateDateRange(bulan, tahun).start);
+  const [endDate, setEndDate] = useState(() => calculateDateRange(bulan, tahun).end);
+
   const [jenisFilter, setJenisFilter] = useState<'semua' | 'pemasukan' | 'pengeluaran'>('semua');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<SortOption>('terbaru');
@@ -49,7 +65,7 @@ export default function Transaksi() {
   useEffect(() => {
     setPage(1);
     fetchTransaksi(1, true);
-  }, [bulan, tahun, jenisFilter]);
+  }, [bulan, tahun, startDate, endDate, jenisFilter]);
 
   const fetchTransaksi = async (targetPage: number = 1, reset: boolean = false) => {
     if (reset) {
@@ -59,7 +75,7 @@ export default function Transaksi() {
     }
     
     try {
-      const params: any = { bulan, tahun, page: targetPage, limit: 15 };
+      const params: any = { bulan, tahun, startDate, endDate, page: targetPage, limit: 15 };
       if (jenisFilter !== 'semua') params.jenis = jenisFilter;
       
       const res = await api.get('/transaksi', { params });
@@ -128,6 +144,9 @@ export default function Transaksi() {
       if (newBulan !== bulan || newTahun !== tahun) {
         setBulan(newBulan);
         setTahun(newTahun);
+        const range = calculateDateRange(newBulan, newTahun);
+        setStartDate(range.start);
+        setEndDate(range.end);
         // useEffect will trigger fetchTransaksi automatically
       } else {
         setPage(1);
@@ -206,11 +225,35 @@ export default function Transaksi() {
         {/* Actions & Filters */}
         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-lg gap-4 relative z-20">
           <div className="flex flex-wrap items-center gap-4 w-full xl:w-auto">
-            <MonthSelector 
-              selectedBulan={bulan}
-              selectedTahun={tahun}
-              onChange={(b, t) => { setBulan(b); setTahun(t); }}
-            />
+            <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+              <MonthSelector 
+                selectedBulan={bulan}
+                selectedTahun={tahun}
+                onChange={(b, t) => { 
+                  setBulan(b); 
+                  setTahun(t); 
+                  const range = calculateDateRange(b, t);
+                  setStartDate(range.start);
+                  setEndDate(range.end);
+                }}
+              />
+              <div className="flex items-center gap-2 text-sm text-on-surface-variant bg-white px-3 py-2 rounded-xl border border-outline-variant shadow-sm h-11">
+                <span className="material-symbols-outlined text-[18px]">calendar_today</span>
+                <input 
+                  type="date" 
+                  value={startDate} 
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="bg-transparent outline-none cursor-pointer text-on-surface font-medium"
+                />
+                <span className="text-outline-variant">/</span>
+                <input 
+                  type="date" 
+                  value={endDate} 
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="bg-transparent outline-none cursor-pointer text-on-surface font-medium"
+                />
+              </div>
+            </div>
             
             <div className="h-6 w-[1px] bg-premium-border hidden sm:block"></div>
 

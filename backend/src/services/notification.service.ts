@@ -17,6 +17,10 @@ export const getDynamicNotifications = async (userId: string): Promise<Notificat
   const currentBulan = now.getMonth() + 1;
   const currentTahun = now.getFullYear();
 
+  // Hitung startDate dan endDate untuk bulan kalender saat ini
+  const startDate = new Date(currentTahun, currentBulan - 1, 1).toISOString().split('T')[0];
+  const endDate = new Date(currentTahun, currentBulan, 0).toISOString().split('T')[0];
+
   // 1. Tagihan Alerts
   const tagihanList = await db
     .select({
@@ -67,7 +71,7 @@ export const getDynamicNotifications = async (userId: string): Promise<Notificat
       id: budget.id,
       kategori: budget.kategori,
       nominal: budget.nominal,
-      terpakai: getSpendingSubquery(userId, currentBulan, currentTahun),
+      terpakai: getSpendingSubquery(userId, startDate, endDate),
     })
     .from(budget)
     .where(

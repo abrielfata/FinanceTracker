@@ -7,13 +7,20 @@ router.use(authMiddleware);
 
 // GET /api/dashboard/summary?bulan=9&tahun=2024
 router.get('/summary', async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-  const { bulan, tahun } = req.query;
+  const { bulan, tahun, startDate, endDate } = req.query;
 
   try {
     const bulanNum = bulan ? parseInt(bulan as string) : new Date().getMonth() + 1;
     const tahunNum = tahun ? parseInt(tahun as string) : new Date().getFullYear();
 
-    const data = await DashboardService.getDashboardSummary(req.user!.id, bulanNum, tahunNum);
+    // Default ke kalender normal jika tidak ada range
+    const fallbackStart = new Date(tahunNum, bulanNum - 1, 1).toISOString().split('T')[0];
+    const fallbackEnd = new Date(tahunNum, bulanNum, 0).toISOString().split('T')[0];
+
+    const finalStartDate = (startDate as string) || fallbackStart;
+    const finalEndDate = (endDate as string) || fallbackEnd;
+
+    const data = await DashboardService.getDashboardSummary(req.user!.id, bulanNum, tahunNum, finalStartDate, finalEndDate);
     res.json(data);
   } catch (err) {
     next(err);
