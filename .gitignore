@@ -75,3 +75,4 @@ Desktop.ini
 # Misc / Project Specific
 # =========================
 .agents/
+.skills-lock.json
