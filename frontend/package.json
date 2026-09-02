@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
     "@vitejs/plugin-react": "^6.1.1",
     "autoprefixer": "^10.5.4",
     "postcss": "^8.4.47",
@@ -22,6 +24,8 @@
     "axios": "^1.20.0",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "react-hook-form": "^7.87.0",
     "react-hot-toast": "^2.6.0",
     "react-router-dom": "^7.18.3",
