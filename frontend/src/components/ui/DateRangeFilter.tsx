@@ -102,54 +102,80 @@ export default function DateRangeFilter({ startDate, endDate, onChange, label }:
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-72 bg-surface-container-lowest rounded-2xl shadow-premium border border-premium-border animate-fade-in p-4 z-50">
-          <p className="text-body-sm font-bold text-on-surface mb-3 border-b border-premium-border pb-2">Pilih Rentang Waktu</p>
+        <div className="absolute left-0 mt-2 w-[340px] bg-white rounded-3xl shadow-premium border border-premium-border animate-fade-in p-5 z-50">
+          <div className="flex items-center gap-2 mb-4 border-b border-premium-border pb-3">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+              <span className="material-symbols-outlined text-[18px]">calendar_month</span>
+            </div>
+            <p className="text-body-md font-bold text-on-surface">Pilih Rentang Waktu</p>
+          </div>
           
-          <div className="flex flex-col gap-2 mb-4">
+          <div className="flex flex-col gap-2 mb-5">
             <button 
               onClick={handlePresetBulanIni}
-              className="text-left px-3 py-2 text-body-sm rounded-lg hover:bg-surface-container-low transition-colors text-on-surface"
+              className="group flex items-center justify-between px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-2xl hover:bg-primary/5 hover:border-primary/30 transition-all text-on-surface"
             >
-              🗓️ Siklus Bulan Ini (Tgl 26 - 25)
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary text-[20px]">today</span>
+                <span className="text-body-sm font-bold">Siklus Bulan Ini</span>
+              </div>
+              <span className="text-xs text-on-surface-variant font-medium bg-surface-container-low px-2 py-1 rounded-md group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                Tgl 26 - 25
+              </span>
             </button>
             <button 
               onClick={handlePresetBulanLalu}
-              className="text-left px-3 py-2 text-body-sm rounded-lg hover:bg-surface-container-low transition-colors text-on-surface"
+              className="group flex items-center justify-between px-4 py-3 bg-surface-container-lowest border border-outline-variant rounded-2xl hover:bg-primary/5 hover:border-primary/30 transition-all text-on-surface"
             >
-              ⏮️ Siklus Bulan Lalu
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary text-[20px]">history</span>
+                <span className="text-body-sm font-bold">Siklus Bulan Lalu</span>
+              </div>
+              <span className="material-symbols-outlined text-on-surface-variant text-[18px] group-hover:text-primary transition-colors">chevron_right</span>
             </button>
           </div>
 
-          <div className="border-t border-premium-border pt-3 mb-3">
-            <p className="text-xs font-bold text-on-surface-variant mb-2">Atau pilih manual:</p>
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-col">
-                <label className="text-xs text-on-surface-variant mb-1">Dari Tanggal</label>
+          <div className="bg-surface-container-lowest rounded-2xl p-4 border border-premium-border mb-4">
+            <p className="text-xs font-bold text-on-surface-variant mb-3 flex items-center gap-1">
+              <span className="material-symbols-outlined text-[14px]">edit_calendar</span>
+              Kustom Manual
+            </p>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <label className="text-xs font-medium text-on-surface-variant w-16">Mulai</label>
                 <input 
                   type="date" 
                   value={tempStart} 
                   onChange={(e) => setTempStart(e.target.value)}
-                  className="w-full px-3 py-1.5 border border-outline-variant rounded-lg text-body-sm focus:outline-none focus:border-primary text-on-surface"
+                  className="flex-1 px-3 py-2 bg-surface-container-low border border-transparent rounded-xl text-body-sm focus:outline-none focus:bg-white focus:border-primary transition-all text-on-surface font-medium"
                 />
               </div>
-              <div className="flex flex-col">
-                <label className="text-xs text-on-surface-variant mb-1">Sampai Tanggal</label>
+              <div className="flex items-center gap-3">
+                <label className="text-xs font-medium text-on-surface-variant w-16">Sampai</label>
                 <input 
                   type="date" 
                   value={tempEnd} 
                   onChange={(e) => setTempEnd(e.target.value)}
-                  className="w-full px-3 py-1.5 border border-outline-variant rounded-lg text-body-sm focus:outline-none focus:border-primary text-on-surface"
+                  className="flex-1 px-3 py-2 bg-surface-container-low border border-transparent rounded-xl text-body-sm focus:outline-none focus:bg-white focus:border-primary transition-all text-on-surface font-medium"
                 />
               </div>
             </div>
           </div>
           
-          <button 
-            onClick={handleApply}
-            className="w-full bg-primary text-on-primary py-2 rounded-xl text-body-sm font-bold hover:bg-primary/90 transition-colors"
-          >
-            Terapkan
-          </button>
+          <div className="flex justify-end gap-2">
+            <button 
+              onClick={() => setIsOpen(false)}
+              className="px-4 py-2.5 rounded-xl text-body-sm font-bold text-on-surface-variant hover:bg-surface-container-low transition-colors"
+            >
+              Batal
+            </button>
+            <button 
+              onClick={handleApply}
+              className="px-6 py-2.5 bg-primary text-on-primary rounded-xl text-body-sm font-bold hover:bg-primary/90 transition-colors shadow-sm"
+            >
+              Terapkan
+            </button>
+          </div>
         </div>
       )}
     </div>
