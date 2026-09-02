@@ -8,7 +8,7 @@ export const getSpendingSubquery = (userId: string, bulan: number, tahun: number
     SELECT SUM(t.nominal) FROM transaksi t
     WHERE t.user_id = ${userId}
       AND t.jenis = 'pengeluaran'
-      AND t.kategori = ${budget.kategori}
+      AND t.kategori = budget.kategori
       AND EXTRACT(MONTH FROM t.tanggal) = ${bulan}
       AND EXTRACT(YEAR FROM t.tanggal) = ${tahun}
   ), 0)`;
