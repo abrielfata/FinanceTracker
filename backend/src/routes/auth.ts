@@ -53,7 +53,7 @@ router.post('/register', authLimiter, async (req: Request, res: Response, next: 
 
     res.status(201).json({
       message: 'Registrasi berhasil',
-      user: newUser,
+      user: { id: newUser.id, nama: newUser.nama, email: newUser.email, siklusTgl: newUser.siklusTgl },
       accessToken: tokens.accessToken,
     });
   } catch (err) {

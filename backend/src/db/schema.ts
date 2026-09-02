@@ -19,6 +19,7 @@ export const users = pgTable('users', {
   nama: text('nama').notNull(),
   email: text('email').unique().notNull(),
   passwordHash: text('password_hash').notNull(),
+  siklusTgl: integer('siklus_tgl').notNull().default(26), // 1-31
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 });
 

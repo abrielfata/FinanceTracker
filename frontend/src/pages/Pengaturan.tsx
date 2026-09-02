@@ -11,6 +11,7 @@ export default function Pengaturan() {
   const navigate = useNavigate();
 
   const [nama, setNama] = useState(user?.nama || '');
+  const [siklusTgl, setSiklusTgl] = useState(user?.siklusTgl?.toString() || '26');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   
@@ -29,7 +30,7 @@ export default function Pengaturan() {
     e.preventDefault();
     setIsSavingProfile(true);
     try {
-      const res = await api.put('/auth/profile', { nama });
+      const res = await api.put('/users/profile', { nama, siklusTgl: parseInt(siklusTgl) });
       setAuth(res.data.user, accessToken!);
       toast.success('Profil berhasil diperbarui!');
     } catch (error: any) {
@@ -96,10 +97,23 @@ export default function Pengaturan() {
                   />
                   <p className="mt-2 text-xs text-on-surface-variant">Email tidak dapat diubah saat ini.</p>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-on-surface-variant mb-1">Tgl Siklus Keuangan</label>
+                  <select 
+                    value={siklusTgl} 
+                    onChange={(e) => setSiklusTgl(e.target.value)}
+                    className="w-full px-4 py-3 border border-outline-variant rounded-xl text-body-md focus:outline-none focus:ring-primary focus:border-primary transition-colors bg-white text-on-surface"
+                  >
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
+                      <option key={day} value={day}>Tanggal {day}</option>
+                    ))}
+                  </select>
+                  <p className="mt-2 text-xs text-on-surface-variant">Tanggal Anda biasa gajian. Grafik dan ringkasan akan menyesuaikan siklus ini.</p>
+                </div>
                 <div className="pt-2">
                   <button
                     type="submit"
-                    disabled={isSavingProfile || nama === user?.nama}
+                    disabled={isSavingProfile || (nama === user?.nama && siklusTgl === user?.siklusTgl?.toString())}
                     className="py-3 px-6 rounded-xl text-body-md font-bold text-white bg-premium-charcoal hover:bg-premium-charcoal/90 shadow-sm transition-colors disabled:opacity-50"
                   >
                     {isSavingProfile ? 'Menyimpan...' : 'Simpan Profil'}

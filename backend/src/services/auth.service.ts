@@ -36,7 +36,7 @@ export const registerUser = async (data: Omit<NewUser, 'id' | 'createdAt' | 'upd
   const [newUser] = await db
     .insert(users)
     .values({ nama, email, passwordHash: hashedPassword })
-    .returning({ id: users.id, email: users.email, nama: users.nama });
+    .returning({ id: users.id, email: users.email, nama: users.nama, siklusTgl: users.siklusTgl });
 
   const tokens = generateTokens(newUser.id, newUser.email);
 
@@ -62,14 +62,14 @@ export const loginUser = async (email: string, passwordString: string) => {
   const tokens = generateTokens(user.id, user.email);
 
   return {
-    user: { id: user.id, nama: user.nama, email: user.email },
+    user: { id: user.id, nama: user.nama, email: user.email, siklusTgl: user.siklusTgl },
     tokens,
   };
 };
 
 export const getMe = async (userId: string) => {
   const [user] = await db
-    .select({ id: users.id, nama: users.nama, email: users.email, createdAt: users.createdAt })
+    .select({ id: users.id, nama: users.nama, email: users.email, siklusTgl: users.siklusTgl, createdAt: users.createdAt })
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
@@ -98,7 +98,7 @@ export const updateProfile = async (userId: string, nama: string) => {
     .update(users)
     .set({ nama })
     .where(eq(users.id, userId))
-    .returning({ id: users.id, nama: users.nama, email: users.email });
+    .returning({ id: users.id, nama: users.nama, email: users.email, siklusTgl: users.siklusTgl });
 
   if (!updatedUser) {
     throw new NotFoundError('Pengguna tidak ditemukan');
