@@ -12,6 +12,7 @@ import tagihanRoutes from './routes/tagihan';
 import budgetRoutes from './routes/budget';
 import dashboardRoutes from './routes/dashboard';
 import notificationRoutes from './routes/notifications';
+import userRoutes from './routes/user';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -51,6 +52,7 @@ app.use('/api/tagihan', tagihanRoutes);
 app.use('/api/budget', budgetRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/users', userRoutes);
 
 // ─── Error Handler ────────────────────────────────────────────────────────────
 app.use(errorHandler);

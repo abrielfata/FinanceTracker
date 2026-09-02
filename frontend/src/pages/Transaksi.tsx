@@ -8,7 +8,8 @@ import DropdownFilter from '../components/ui/DropdownFilter';
 import TransaksiForm, { type TransaksiFormData } from '../components/transaksi/TransaksiForm';
 import toast from 'react-hot-toast';
 import api from '../lib/axios';
-import { formatRupiah, KATEGORI_ICON, KATEGORI_COLOR, formatTanggal, exportToExcel } from '../utils/helpers';
+import { formatRupiah, KATEGORI_ICON, KATEGORI_COLOR, formatTanggal, exportToExcel, getSiklusDateRange } from '../utils/helpers';
+import { useAuthStore } from '../store/useAuthStore';
 
 interface TransaksiItem {
   id: string;
@@ -26,23 +27,11 @@ export default function Transaksi() {
   const [isLoading, setIsLoading] = useState(true);
   
   // Filters & Search
-  const [bulan, setBulan] = useState(new Date().getMonth() + 1);
-  const [tahun, setTahun] = useState(new Date().getFullYear());
-
-  const calculateDateRange = (bulan: number, tahun: number) => {
-    let startM = bulan - 1;
-    let startY = tahun;
-    if (startM === 0) {
-      startM = 12;
-      startY -= 1;
-    }
-    const start = `${startY}-${String(startM).padStart(2, '0')}-26`;
-    const end = `${tahun}-${String(bulan).padStart(2, '0')}-25`;
-    return { start, end };
-  };
-
-  const [startDate, setStartDate] = useState(() => calculateDateRange(bulan, tahun).start);
-  const [endDate, setEndDate] = useState(() => calculateDateRange(bulan, tahun).end);
+  const { user } = useAuthStore();
+  const siklusTgl = user?.siklusTgl || 26;
+  
+  const [startDate, setStartDate] = useState(() => getSiklusDateRange(siklusTgl).start);
+  const [endDate, setEndDate] = useState(() => getSiklusDateRange(siklusTgl).end);
 
   const [jenisFilter, setJenisFilter] = useState<'semua' | 'pemasukan' | 'pengeluaran'>('semua');
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,7 +54,7 @@ export default function Transaksi() {
   useEffect(() => {
     setPage(1);
     fetchTransaksi(1, true);
-  }, [bulan, tahun, startDate, endDate, jenisFilter]);
+  }, [startDate, endDate, jenisFilter]);
 
   const fetchTransaksi = async (targetPage: number = 1, reset: boolean = false) => {
     if (reset) {
@@ -75,7 +64,7 @@ export default function Transaksi() {
     }
     
     try {
-      const params: any = { bulan, tahun, startDate, endDate, page: targetPage, limit: 15 };
+      const params: any = { startDate, endDate, page: targetPage, limit: 15 };
       if (jenisFilter !== 'semua') params.jenis = jenisFilter;
       
       const res = await api.get('/transaksi', { params });
@@ -135,19 +124,17 @@ export default function Transaksi() {
         await api.post('/transaksi', data);
         toast.success('Transaksi berhasil ditambahkan');
       }
-      const newDate = new Date(data.tanggal);
-      const newBulan = newDate.getMonth() + 1;
-      const newTahun = newDate.getFullYear();
       
       setIsModalOpen(false);
 
-      if (newBulan !== bulan || newTahun !== tahun) {
-        setBulan(newBulan);
-        setTahun(newTahun);
-        const range = calculateDateRange(newBulan, newTahun);
-        setStartDate(range.start);
-        setEndDate(range.end);
-        // useEffect will trigger fetchTransaksi automatically
+      const isDateInRange = data.tanggal >= startDate && data.tanggal <= endDate;
+
+      if (!isDateInRange) {
+        const now = new Date();
+        const start = `${now.getFullYear()}-${String(now.getMonth()).padStart(2, '0')}-26`;
+        const end = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-25`;
+        setStartDate(start);
+        setEndDate(end);
       } else {
         setPage(1);
         fetchTransaksi(1, true);
@@ -163,7 +150,7 @@ export default function Transaksi() {
     try {
       setIsExporting(true);
       const res = await api.get('/dashboard/export');
-      await exportToExcel(res.data, `Fitrack_All_Data_${bulan}_${tahun}`);
+      await exportToExcel(res.data, `Fitrack_All_Data`);
       toast.success('Seluruh data berhasil diunduh ke Excel');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Gagal mengekspor data');

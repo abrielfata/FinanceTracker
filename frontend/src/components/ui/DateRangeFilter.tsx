@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useAuthStore } from '../../store/useAuthStore';
 
 interface DateRangeFilterProps {
   startDate: string;
@@ -12,6 +13,9 @@ export default function DateRangeFilter({ startDate, endDate, onChange, label }:
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [tempStart, setTempStart] = useState(startDate);
   const [tempEnd, setTempEnd] = useState(endDate);
+  
+  const { user } = useAuthStore();
+  const siklusTgl = user?.siklusTgl || 26;
 
   // Sync state if props change externally
   useEffect(() => {
@@ -52,8 +56,28 @@ export default function DateRangeFilter({ startDate, endDate, onChange, label }:
       startM = 12;
       startY -= 1;
     }
-    const start = `${startY}-${String(startM).padStart(2, '0')}-26`;
-    const end = `${currentTahun}-${String(currentBulan).padStart(2, '0')}-25`;
+    // But since siklusTgl is the START date of the cycle, the END date is siklusTgl - 1 (of the current month)
+    // Actually, if siklusTgl is 1, then the cycle is 1st to End of Month.
+    // If siklusTgl is 26, cycle is 26th of prev month to 25th of current month.
+    
+    let cycleStartM = startM;
+    let cycleStartY = startY;
+    let cycleEndM = currentBulan;
+    let cycleEndY = currentTahun;
+    
+    if (siklusTgl === 1) {
+      cycleStartM = currentBulan;
+      cycleStartY = currentTahun;
+      const lastDay = new Date(currentTahun, currentBulan, 0).getDate();
+      const start = `${cycleStartY}-${String(cycleStartM).padStart(2, '0')}-01`;
+      const end = `${cycleEndY}-${String(cycleEndM).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+      onChange(start, end);
+      setIsOpen(false);
+      return;
+    }
+
+    const start = `${cycleStartY}-${String(cycleStartM).padStart(2, '0')}-${String(siklusTgl).padStart(2, '0')}`;
+    const end = `${cycleEndY}-${String(cycleEndM).padStart(2, '0')}-${String(siklusTgl - 1).padStart(2, '0')}`;
     
     onChange(start, end);
     setIsOpen(false);
@@ -74,8 +98,25 @@ export default function DateRangeFilter({ startDate, endDate, onChange, label }:
       startM = 12;
       startY -= 1;
     }
-    const start = `${startY}-${String(startM).padStart(2, '0')}-26`;
-    const end = `${prevTahun}-${String(prevBulan).padStart(2, '0')}-25`;
+    
+    let cycleStartM = startM;
+    let cycleStartY = startY;
+    let cycleEndM = prevBulan;
+    let cycleEndY = prevTahun;
+    
+    if (siklusTgl === 1) {
+      cycleStartM = prevBulan;
+      cycleStartY = prevTahun;
+      const lastDay = new Date(prevTahun, prevBulan, 0).getDate();
+      const start = `${cycleStartY}-${String(cycleStartM).padStart(2, '0')}-01`;
+      const end = `${cycleEndY}-${String(cycleEndM).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+      onChange(start, end);
+      setIsOpen(false);
+      return;
+    }
+
+    const start = `${cycleStartY}-${String(cycleStartM).padStart(2, '0')}-${String(siklusTgl).padStart(2, '0')}`;
+    const end = `${cycleEndY}-${String(cycleEndM).padStart(2, '0')}-${String(siklusTgl - 1).padStart(2, '0')}`;
     
     onChange(start, end);
     setIsOpen(false);
@@ -120,7 +161,7 @@ export default function DateRangeFilter({ startDate, endDate, onChange, label }:
                 <span className="text-body-sm font-bold">Siklus Bulan Ini</span>
               </div>
               <span className="text-xs text-on-surface-variant font-medium bg-surface-container-low px-2 py-1 rounded-md group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                Tgl 26 - 25
+                Tgl {siklusTgl} - {siklusTgl === 1 ? 'Akhir' : siklusTgl - 1}
               </span>
             </button>
             <button 

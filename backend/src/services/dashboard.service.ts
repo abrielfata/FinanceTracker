@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { transaksi, tagihan, tagihanBulan, budget } from '../db/schema';
+import { transaksi, tagihan, tagihanBulan, budget, users } from '../db/schema';
 import { eq, and, sql, isNull, gte, lte } from 'drizzle-orm';
 import { getSpendingSubquery } from './budget.service';
 
@@ -138,15 +138,25 @@ export const getTrendSummary = async (userId: string, filterStartDate?: string, 
     baseStart = new Date(filterStartDate);
     baseEnd = new Date(filterEndDate);
   } else {
-    // Default siklus bulan ini
+    // Default ke siklus kustom milik user
+    const [u] = await db.select({ siklusTgl: users.siklusTgl }).from(users).where(eq(users.id, userId)).limit(1);
+    const siklusTgl = u?.siklusTgl || 26;
+
     let startM = currentBulan - 1;
     let startY = currentTahun;
     if (startM === 0) {
       startM = 12;
       startY -= 1;
     }
-    baseStart = new Date(startY, startM - 1, 26);
-    baseEnd = new Date(currentTahun, currentBulan - 1, 25);
+    
+    if (siklusTgl === 1) {
+      const lastDay = new Date(currentTahun, currentBulan, 0).getDate();
+      baseStart = new Date(currentTahun, currentBulan - 1, 1);
+      baseEnd = new Date(currentTahun, currentBulan - 1, lastDay);
+    } else {
+      baseStart = new Date(startY, startM - 1, siklusTgl);
+      baseEnd = new Date(currentTahun, currentBulan - 1, siklusTgl - 1);
+    }
   }
 
   // Generate 6 periods relative to base dates

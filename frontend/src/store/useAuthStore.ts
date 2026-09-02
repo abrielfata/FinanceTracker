@@ -4,6 +4,7 @@ interface User {
   id: string;
   nama: string;
   email: string;
+  siklusTgl?: number;
 }
 
 interface AuthState {
@@ -12,6 +13,7 @@ interface AuthState {
   isAuthenticated: boolean;
   setAuth: (user: User, token: string) => void;
   setAccessToken: (token: string) => void;
+  updateUser: (user: Partial<User>) => void;
   logout: () => void;
 }
 
@@ -25,6 +27,11 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setAccessToken: (token) =>
     set({ accessToken: token }),
+
+  updateUser: (updatedFields) =>
+    set((state) => ({
+      user: state.user ? { ...state.user, ...updatedFields } : null
+    })),
 
   logout: () =>
     set({ user: null, accessToken: null, isAuthenticated: false }),

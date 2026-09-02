@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import Header from '../components/layout/Header';
 import api from '../lib/axios';
-import { formatRupiah, KATEGORI_ICON } from '../utils/helpers';
+import { formatRupiah, getSiklusDateRange, KATEGORI_ICON } from '../utils/helpers';
 import { Link } from 'react-router-dom';
 import DateRangeFilter from '../components/ui/DateRangeFilter';
 import Skeleton from '../components/ui/Skeleton';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useAuthStore } from '../store/useAuthStore';
 
 interface DashboardSummary {
   bulan: number;
@@ -44,22 +45,11 @@ export default function Dashboard() {
   const [data, setData] = useState<DashboardSummary | null>(null);
   const [trendData, setTrendData] = useState<TrendItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
-  // Date Selector State
-  const calculateDateRange = (bulan: number, tahun: number) => {
-    let startM = bulan - 1;
-    let startY = tahun;
-    if (startM === 0) {
-      startM = 12;
-      startY -= 1;
-    }
-    const start = `${startY}-${String(startM).padStart(2, '0')}-26`;
-    const end = `${tahun}-${String(bulan).padStart(2, '0')}-25`;
-    return { start, end };
-  };
+  const { user } = useAuthStore();
+  const siklusTgl = user?.siklusTgl || 26;
 
-  const [startDate, setStartDate] = useState(() => calculateDateRange(new Date().getMonth() + 1, new Date().getFullYear()).start);
-  const [endDate, setEndDate] = useState(() => calculateDateRange(new Date().getMonth() + 1, new Date().getFullYear()).end);
+  const [startDate, setStartDate] = useState(() => getSiklusDateRange(siklusTgl).start);
+  const [endDate, setEndDate] = useState(() => getSiklusDateRange(siklusTgl).end);
 
   useEffect(() => {
     fetchSummary();
