@@ -50,7 +50,7 @@ export default function NotificationDropdown() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-premium border border-premium-border overflow-hidden z-50 animate-in fade-in zoom-in duration-200">
+        <div className="absolute -right-12 sm:right-0 mt-2 w-[300px] sm:w-80 bg-white rounded-2xl shadow-premium border border-premium-border overflow-hidden z-50 animate-in fade-in zoom-in duration-200 origin-top-right">
           <div className="p-4 border-b border-premium-border flex justify-between items-center bg-surface-container-lowest">
             <h3 className="font-bold text-headline-sm text-on-surface">Notifikasi</h3>
             <span className="text-xs font-bold bg-primary/10 text-primary px-2 py-1 rounded-full">

@@ -38,7 +38,7 @@ export default function Header({ title, subtitle, children }: HeaderProps) {
   };
 
   return (
-    <header className="flex justify-between items-center w-full px-xl py-lg sticky top-0 bg-[#F7F6F0]/90 backdrop-blur-sm z-30 border-b border-transparent">
+    <header className="flex justify-between items-center w-full px-4 py-4 md:px-xl md:py-lg sticky top-0 bg-[#F7F6F0]/90 backdrop-blur-sm z-30 border-b border-transparent">
       <div>
         {subtitle ? (
           <p className="font-body text-body-sm text-on-surface-variant">{subtitle}</p>
@@ -47,7 +47,7 @@ export default function Header({ title, subtitle, children }: HeaderProps) {
             {getGreeting()}, {user?.nama?.split(' ')[0] ?? 'Pengguna'}
           </p>
         )}
-        <h1 className="font-headline text-headline-lg text-on-surface">{title}</h1>
+        <h1 className="font-headline text-2xl md:text-headline-lg text-on-surface truncate">{title}</h1>
       </div>
 
       {/* Actions */}
