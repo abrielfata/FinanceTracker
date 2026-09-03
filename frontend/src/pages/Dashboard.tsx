@@ -154,9 +154,9 @@ export default function Dashboard() {
         </div>
 
         {/* Summary Cards Row */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter mb-lg relative z-10">
+        <div className="grid grid-cols-2 md:grid-cols-12 gap-4 md:gap-gutter mb-6 md:mb-lg relative z-10">
           {/* Main Balance Card */}
-          <div className="md:col-span-6 bg-premium-charcoal rounded-3xl p-lg text-white shadow-premium relative overflow-hidden flex flex-col justify-between h-[200px]">
+          <div className="col-span-2 md:col-span-6 bg-premium-charcoal rounded-3xl p-6 md:p-lg text-white shadow-premium relative overflow-hidden flex flex-col justify-between min-h-[140px] md:h-[200px]">
             <div className="flex justify-between items-start">
               <h2 className="font-body text-body-sm text-white/80">Saldo saat ini</h2>
               <span className="material-symbols-outlined text-white/60">account_balance_wallet</span>
@@ -176,7 +176,7 @@ export default function Dashboard() {
           </div>
 
           {/* Income Card */}
-          <div className="md:col-span-3 bg-surface-container-lowest rounded-3xl p-lg border border-premium-border shadow-premium flex flex-col justify-between h-[200px]">
+          <div className="col-span-1 md:col-span-3 bg-surface-container-lowest rounded-3xl p-4 md:p-lg border border-premium-border shadow-premium flex flex-col justify-between min-h-[140px] md:h-[200px]">
             <div className="flex justify-between items-start">
               <div className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface">
                 <span className="material-symbols-outlined">south_west</span>
@@ -184,12 +184,12 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="font-body text-body-sm text-on-surface-variant mb-1">Pemasukan</p>
-              <p className="font-headline text-headline-md text-on-surface truncate">{formatRupiah(data.pemasukan)}</p>
+              <p className="font-headline text-lg md:text-headline-md text-on-surface truncate">{formatRupiah(data.pemasukan)}</p>
             </div>
           </div>
 
           {/* Expense Card */}
-          <div className="md:col-span-3 bg-surface-container-lowest rounded-3xl p-lg border border-premium-border shadow-premium flex flex-col justify-between h-[200px]">
+          <div className="col-span-1 md:col-span-3 bg-surface-container-lowest rounded-3xl p-4 md:p-lg border border-premium-border shadow-premium flex flex-col justify-between min-h-[140px] md:h-[200px]">
             <div className="flex justify-between items-start">
               <div className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface">
                 <span className="material-symbols-outlined">north_east</span>
@@ -197,7 +197,7 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="font-body text-body-sm text-on-surface-variant mb-1">Pengeluaran</p>
-              <p className="font-headline text-headline-md text-on-surface truncate">{formatRupiah(data.pengeluaran)}</p>
+              <p className="font-headline text-lg md:text-headline-md text-on-surface truncate">{formatRupiah(data.pengeluaran)}</p>
             </div>
           </div>
         </div>
@@ -207,7 +207,7 @@ export default function Dashboard() {
           
           {/* Bills Column */}
           <div className="lg:col-span-7">
-            <div className="bg-surface-container-lowest rounded-3xl p-lg border border-premium-border shadow-premium h-full min-h-[400px]">
+            <div className="bg-surface-container-lowest rounded-3xl p-6 md:p-lg border border-premium-border shadow-premium h-full min-h-[300px] md:min-h-[400px]">
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h3 className="font-headline text-headline-sm text-on-surface">Tagihan terdekat</h3>
@@ -245,7 +245,7 @@ export default function Dashboard() {
 
           {/* Budget Column */}
           <div className="lg:col-span-5">
-            <div className="bg-surface-container-lowest rounded-3xl p-lg border border-premium-border shadow-premium h-full min-h-[400px]">
+            <div className="bg-surface-container-lowest rounded-3xl p-6 md:p-lg border border-premium-border shadow-premium h-full min-h-[300px] md:min-h-[400px]">
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h3 className="font-headline text-headline-sm text-on-surface">Budget bulan ini</h3>

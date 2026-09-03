@@ -143,7 +143,7 @@ export default function DateRangeFilter({ startDate, endDate, onChange, label }:
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-[340px] bg-white rounded-3xl shadow-premium border border-premium-border animate-fade-in p-5 z-50">
+        <div className="absolute left-0 md:left-auto mt-2 w-[300px] sm:w-[340px] bg-white rounded-3xl shadow-premium border border-premium-border animate-fade-in p-4 sm:p-5 z-50">
           <div className="flex items-center gap-2 mb-4 border-b border-premium-border pb-3">
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
               <span className="material-symbols-outlined text-[18px]">calendar_month</span>
