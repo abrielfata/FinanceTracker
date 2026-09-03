@@ -255,14 +255,12 @@ export const exportToExcel = async (data: ExportData, filename: string) => {
 // Kategori icons (Material Symbols)
 export const KATEGORI_CONFIG = [
   { name: 'Makan & Minum', type: 'pengeluaran', icon: 'restaurant', color: 'bg-orange-100 text-orange-600' },
-  { name: 'Makanan & Minuman', type: 'pengeluaran', icon: 'restaurant', color: 'bg-orange-100 text-orange-600' },
   { name: 'Transportasi', type: 'pengeluaran', icon: 'directions_car', color: 'bg-blue-100 text-blue-600' },
   { name: 'Hiburan', type: 'pengeluaran', icon: 'movie', color: 'bg-purple-100 text-purple-600' },
   { name: 'Kesehatan', type: 'pengeluaran', icon: 'medical_services', color: 'bg-red-100 text-red-600' },
   { name: 'Pendidikan', type: 'pengeluaran', icon: 'school', color: 'bg-indigo-100 text-indigo-600' },
   { name: 'Tagihan', type: 'pengeluaran', icon: 'receipt', color: 'bg-yellow-100 text-yellow-700' },
   { name: 'Belanja', type: 'pengeluaran', icon: 'shopping_bag', color: 'bg-pink-100 text-pink-600' },
-  { name: 'Pemasukan', type: 'pemasukan', icon: 'account_balance', color: 'bg-emerald-100 text-emerald-700' },
   { name: 'Tabungan', type: 'pengeluaran', icon: 'savings', color: 'bg-teal-100 text-teal-700' },
   { name: 'Gaji', type: 'pemasukan', icon: 'account_balance_wallet', color: 'bg-emerald-100 text-emerald-700' },
   { name: 'Bonus', type: 'pemasukan', icon: 'redeem', color: 'bg-yellow-100 text-yellow-700' },
