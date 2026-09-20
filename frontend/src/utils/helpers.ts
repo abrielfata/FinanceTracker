@@ -95,7 +95,8 @@ export const getBudgetStatus = (terpakai: number, nominal: number): 'aman' | 'wa
 
 export const getBudgetPersen = (terpakai: number, nominal: number) => {
   if (nominal <= 0) return 0;
-  return Math.min((terpakai / nominal) * 100, 100);
+  const persen = (terpakai / nominal) * 100;
+  return Math.min(Math.round(persen), 100);
 };
 
 export interface ExportData {

@@ -1,7 +1,8 @@
 import { db } from '../db';
 import { transaksi, tagihan, tagihanBulan, budget, users } from '../db/schema';
-import { eq, and, sql, isNull, gte, lte } from 'drizzle-orm';
+import { eq, and, sql, isNull, gte, lte, or, ne } from 'drizzle-orm';
 import { getSpendingSubquery } from './budget.service';
+import { formatDateString } from '../utils/date';
 
 export const getDashboardSummary = async (userId: string, bulanNum: number, tahunNum: number, startDate: string, endDate: string) => {
   // Hitung range tanggal untuk bulan lalu
@@ -13,13 +14,13 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
   const prevEnd = new Date(end);
   prevEnd.setMonth(prevEnd.getMonth() - 1);
 
-  const startDateLalu = prevStart.toISOString().split('T')[0];
-  const endDateLalu = prevEnd.toISOString().split('T')[0];
+  const startDateLalu = formatDateString(prevStart);
+  const endDateLalu = formatDateString(prevEnd);
 
   const [
     [summary],
-    tagihanTerdekat,
-    budgetSummary,
+    rawTagihanTerdekat,
+    rawBudgetSummary,
     [summaryLalu]
   ] = await Promise.all([
     // 1. Total pemasukan & pengeluaran bulan ini (berdasarkan custom date range)
@@ -61,7 +62,8 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
       .where(
         and(
           eq(tagihan.userId, userId),
-          isNull(tagihan.deletedAt)
+          isNull(tagihan.deletedAt),
+          or(isNull(tagihanBulan.status), ne(tagihanBulan.status, 'lunas'))
         )
       )
       .orderBy(tagihan.tanggalJatuhTempo)
@@ -112,6 +114,18 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
   const persenSaldo = saldoLalu > 0
     ? ((saldo - saldoLalu) / saldoLalu) * 100
     : 0;
+
+  const tagihanTerdekat = rawTagihanTerdekat.map((t) => ({
+    ...t,
+    nominal: Number(t.nominal),
+    status: t.status || 'belum_lunas',
+  }));
+
+  const budgetSummary = rawBudgetSummary.map((b) => ({
+    ...b,
+    nominal: Number(b.nominal),
+    terpakai: Number(b.terpakai) || 0,
+  }));
 
   return {
     bulan: bulanNum,
@@ -166,8 +180,8 @@ export const getTrendSummary = async (userId: string, filterStartDate?: string, 
     const s = new Date(baseStart.getFullYear(), baseStart.getMonth() - i, baseStart.getDate());
     const e = new Date(baseEnd.getFullYear(), baseEnd.getMonth() - i, baseEnd.getDate());
     periods.unshift({
-      start: s.toISOString().split('T')[0],
-      end: e.toISOString().split('T')[0],
+      start: formatDateString(s),
+      end: formatDateString(e),
       labelMonth: e.getMonth() + 1,
       labelYear: e.getFullYear()
     });

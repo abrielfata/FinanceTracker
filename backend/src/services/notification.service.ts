@@ -3,6 +3,8 @@ import { tagihan, tagihanBulan, budget } from '../db/schema';
 import { eq, and } from 'drizzle-orm';
 import { getSpendingSubquery } from './budget.service';
 
+import { formatDateString } from '../utils/date';
+
 export interface NotificationItem {
   id: string;
   type: 'warning' | 'error';
@@ -18,8 +20,8 @@ export const getDynamicNotifications = async (userId: string): Promise<Notificat
   const currentTahun = now.getFullYear();
 
   // Hitung startDate dan endDate untuk bulan kalender saat ini
-  const startDate = new Date(currentTahun, currentBulan - 1, 1).toISOString().split('T')[0];
-  const endDate = new Date(currentTahun, currentBulan, 0).toISOString().split('T')[0];
+  const startDate = formatDateString(new Date(currentTahun, currentBulan - 1, 1));
+  const endDate = formatDateString(new Date(currentTahun, currentBulan, 0));
 
   // 1. Tagihan Alerts
   const tagihanList = await db

@@ -7,12 +7,13 @@ interface TransaksiFilters {
   startDate?: string;
   endDate?: string;
   jenis?: string;
+  isBudgeted?: string;
   page?: string;
   limit?: string;
 }
 
 export const getTransaksiList = async (userId: string, filters: TransaksiFilters) => {
-  const { startDate, endDate, jenis, page = '1', limit = '10' } = filters;
+  const { startDate, endDate, jenis, isBudgeted, page = '1', limit = '10' } = filters;
   const pageNum = parseInt(page);
   const limitNum = parseInt(limit);
   const offset = (pageNum - 1) * limitNum;
@@ -31,7 +32,11 @@ export const getTransaksiList = async (userId: string, filters: TransaksiFilters
     conditions.push(eq(transaksi.jenis, jenis));
   }
 
-  const [data, countResult] = await Promise.all([
+  if (isBudgeted === 'true' || isBudgeted === 'false') {
+    conditions.push(eq(transaksi.isBudgeted, isBudgeted === 'true'));
+  }
+
+  const [rawDbData, countResult] = await Promise.all([
     db.select()
       .from(transaksi)
       .where(and(...conditions))
@@ -42,6 +47,11 @@ export const getTransaksiList = async (userId: string, filters: TransaksiFilters
       .from(transaksi)
       .where(and(...conditions)),
   ]);
+
+  const data = rawDbData.map(t => ({
+    ...t,
+    nominal: Number(t.nominal),
+  }));
 
   return {
     data,

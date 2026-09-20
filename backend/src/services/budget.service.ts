@@ -4,19 +4,20 @@ import { eq, and, sql } from 'drizzle-orm';
 import { NotFoundError } from '../utils/errors';
 
 export const getSpendingSubquery = (userId: string, startDate: string, endDate: string) => {
-  return sql<number>`COALESCE((
+  return sql<number>`CAST(COALESCE((
     SELECT SUM(t.nominal) FROM transaksi t
     WHERE t.user_id = ${userId}
       AND t.jenis = 'pengeluaran'
       AND t.kategori = budget.kategori
+      AND t.is_budgeted = true
       AND t.tanggal >= ${startDate}
       AND t.tanggal <= ${endDate}
       AND t.deleted_at IS NULL
-  ), 0)`;
+  ), 0) AS DOUBLE PRECISION)`;
 };
 
 export const getBudgetList = async (userId: string, bulanNum: number, tahunNum: number, startDate: string, endDate: string) => {
-  return await db
+  const result = await db
     .select({
       id: budget.id,
       kategori: budget.kategori,
@@ -34,6 +35,12 @@ export const getBudgetList = async (userId: string, bulanNum: number, tahunNum: 
       )
     )
     .orderBy(budget.kategori);
+
+  return result.map((item) => ({
+    ...item,
+    nominal: Number(item.nominal),
+    terpakai: Number(item.terpakai) || 0,
+  }));
 };
 
 export const createOrUpdateBudget = async (userId: string, data: Omit<NewBudget, 'userId'>) => {

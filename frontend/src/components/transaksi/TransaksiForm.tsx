@@ -9,6 +9,7 @@ const transaksiSchema = z.object({
   kategori: z.string().min(1, 'Kategori wajib diisi'),
   tanggal: z.string().min(1, 'Tanggal wajib diisi'),
   deskripsi: z.string().optional(),
+  isBudgeted: z.boolean(),
 });
 
 export type TransaksiFormData = z.infer<typeof transaksiSchema>;
@@ -36,10 +37,13 @@ export default function TransaksiForm({ initialData, onSubmit, isLoading, onCanc
       kategori: initialData?.kategori || '',
       tanggal: initialData?.tanggal || new Date().toISOString().split('T')[0],
       deskripsi: initialData?.deskripsi || '',
+      isBudgeted: initialData?.isBudgeted !== undefined ? initialData.isBudgeted : true,
     },
   });
 
   const jenis = watch('jenis');
+  const isBudgeted = watch('isBudgeted');
+  const selectedKategori = watch('kategori');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -142,6 +146,28 @@ export default function TransaksiForm({ initialData, onSubmit, isLoading, onCanc
           placeholder="Contoh: Makan siang dengan teman..."
         />
       </div>
+
+      {/* Hitung ke Budget Toggle */}
+      {jenis === 'pengeluaran' && (
+        <div className="flex items-center justify-between p-3.5 bg-surface-container-low rounded-xl border border-outline-variant">
+          <div>
+            <label htmlFor="isBudgeted" className="font-body text-body-sm font-bold text-on-surface cursor-pointer select-none">
+              Hitung ke Budget Bulanan
+            </label>
+            <p className="text-xs text-on-surface-variant mt-0.5">
+              {isBudgeted
+                ? `Memotong limit budget ${selectedKategori ? `"${selectedKategori}"` : 'kategori'}`
+                : 'Pengeluaran biasa / insidental (tidak memotong budget)'}
+            </p>
+          </div>
+          <input
+            {...register('isBudgeted')}
+            type="checkbox"
+            id="isBudgeted"
+            className="w-5 h-5 text-primary border-outline-variant rounded focus:ring-primary cursor-pointer"
+          />
+        </div>
+      )}
 
       {/* Actions */}
       <div className="pt-2 flex gap-3">

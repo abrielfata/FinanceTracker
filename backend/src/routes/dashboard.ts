@@ -2,6 +2,8 @@ import { Router, Response, NextFunction } from 'express';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import * as DashboardService from '../services/dashboard.service';
 
+import { formatDateString } from '../utils/date';
+
 const router = Router();
 router.use(authMiddleware);
 
@@ -14,8 +16,8 @@ router.get('/summary', async (req: AuthRequest, res: Response, next: NextFunctio
     const tahunNum = tahun ? parseInt(tahun as string) : new Date().getFullYear();
 
     // Default ke kalender normal jika tidak ada range
-    const fallbackStart = new Date(tahunNum, bulanNum - 1, 1).toISOString().split('T')[0];
-    const fallbackEnd = new Date(tahunNum, bulanNum, 0).toISOString().split('T')[0];
+    const fallbackStart = formatDateString(new Date(tahunNum, bulanNum - 1, 1));
+    const fallbackEnd = formatDateString(new Date(tahunNum, bulanNum, 0));
 
     const finalStartDate = (startDate as string) || fallbackStart;
     const finalEndDate = (endDate as string) || fallbackEnd;

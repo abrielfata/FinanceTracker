@@ -3,8 +3,35 @@ import { tagihan, tagihanBulan, NewTagihan, transaksi } from '../db/schema';
 import { eq, and, sql, isNull } from 'drizzle-orm';
 import { NotFoundError } from '../utils/errors';
 
+import { formatDateString } from '../utils/date';
+
 export const getTagihanList = async (userId: string, bulan?: string, tahun?: string) => {
-  return await db
+  const targetBulan = bulan ? parseInt(bulan) : new Date().getMonth() + 1;
+  const targetTahun = tahun ? parseInt(tahun) : new Date().getFullYear();
+
+  // Get active tagihan
+  const activeTagihan = await db
+    .select()
+    .from(tagihan)
+    .where(and(eq(tagihan.userId, userId), isNull(tagihan.deletedAt)));
+
+  // Ensure tagihan_bulan exists for all active tagihan for the requested month/year
+  if (activeTagihan.length > 0) {
+    for (const t of activeTagihan) {
+      await db
+        .insert(tagihanBulan)
+        .values({
+          tagihanId: t.id,
+          userId,
+          bulan: targetBulan,
+          tahun: targetTahun,
+          status: 'belum_lunas',
+        })
+        .onConflictDoNothing();
+    }
+  }
+
+  const list = await db
     .select({
       id: tagihan.id,
       nama: tagihan.nama,
@@ -23,17 +50,17 @@ export const getTagihanList = async (userId: string, bulan?: string, tahun?: str
       tagihanBulan,
       and(
         eq(tagihanBulan.tagihanId, tagihan.id),
-        bulan ? eq(tagihanBulan.bulan, parseInt(bulan)) : undefined,
-        tahun ? eq(tagihanBulan.tahun, parseInt(tahun)) : undefined
+        eq(tagihanBulan.bulan, targetBulan),
+        eq(tagihanBulan.tahun, targetTahun)
       )
     )
-    .where(
-      and(
-        eq(tagihan.userId, userId),
-        isNull(tagihan.deletedAt)
-      )
-    )
+    .where(and(eq(tagihan.userId, userId), isNull(tagihan.deletedAt)))
     .orderBy(tagihan.tanggalJatuhTempo);
+
+  return list.map((item) => ({
+    ...item,
+    nominal: Number(item.nominal),
+  }));
 };
 
 export const createTagihan = async (userId: string, data: Omit<NewTagihan, 'userId'>) => {
@@ -82,17 +109,27 @@ export const deleteTagihan = async (userId: string, tagihanId: string) => {
 };
 
 export const payTagihan = async (userId: string, tagihanBulanId: string) => {
+  const [existing] = await db
+    .select()
+    .from(tagihanBulan)
+    .where(and(eq(tagihanBulan.id, tagihanBulanId), eq(tagihanBulan.userId, userId)))
+    .limit(1);
+
+  if (!existing) {
+    throw new NotFoundError('Data tagihan bulan tidak ditemukan');
+  }
+
+  if (existing.status === 'lunas') {
+    return existing;
+  }
+
   const [data] = await db
     .update(tagihanBulan)
     .set({ status: 'lunas', tanggalBayar: new Date() })
     .where(and(eq(tagihanBulan.id, tagihanBulanId), eq(tagihanBulan.userId, userId)))
     .returning();
 
-  if (!data) {
-    throw new NotFoundError('Data tagihan bulan tidak ditemukan');
-  }
-
-  if (!data.tagihanId) return data;
+  if (!data || !data.tagihanId) return data;
 
   const [baseTagihan] = await db.select().from(tagihan).where(eq(tagihan.id, data.tagihanId));
   if (baseTagihan) {
@@ -102,7 +139,7 @@ export const payTagihan = async (userId: string, tagihanBulanId: string) => {
       nominal: baseTagihan.nominal,
       kategori: baseTagihan.kategori,
       deskripsi: `Bayar Tagihan: ${baseTagihan.nama}`,
-      tanggal: new Date().toISOString().split('T')[0],
+      tanggal: formatDateString(new Date()),
       tagihanBulanId: data.id,
     });
   }
