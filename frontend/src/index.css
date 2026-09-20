@@ -266,6 +266,120 @@
     50% { transform: scale(1.15); }
     100% { transform: scale(1.05); opacity: 1; }
   }
+
+  /* UIverse Search Input (slippery-parrot-22 by satyamchaudharydev) */
+  .slippery-parrot-form {
+    --timing: 0.3s;
+    --width-of-input: 100%;
+    --height-of-input: 46px;
+    --border-height: 2px;
+    --input-bg: #ffffff;
+    --border-color: var(--outline-variant, #bfc9c3);
+    --border-radius: 14px;
+    position: relative;
+    width: var(--width-of-input);
+    height: var(--height-of-input);
+    display: flex;
+    align-items: center;
+    padding-inline: 0.85em;
+    border-radius: var(--border-radius);
+    transition: all var(--timing) ease;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .slippery-parrot-form .search-btn {
+    border: none;
+    background: none;
+    color: var(--on-surface-variant, #707974);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .slippery-parrot-form .search-btn svg {
+    width: 18px;
+    height: 18px;
+    transition: transform var(--timing) ease, color var(--timing) ease;
+  }
+
+  .slippery-parrot-form:focus-within .search-btn svg {
+    transform: scale(1.15) rotate(10deg);
+    color: var(--primary, #003527);
+  }
+
+  .slippery-parrot-form .search-input-field {
+    font-size: 0.925rem;
+    font-weight: 500;
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+    padding-inline-end: 0.8em;
+    padding-inline-start: 0.7em;
+    border: none;
+    outline: none;
+    color: var(--on-surface, #151c27);
+  }
+
+  .slippery-parrot-form::before {
+    content: "";
+    position: absolute;
+    background: var(--primary, #003527);
+    transform: scaleX(0);
+    transform-origin: center;
+    width: 100%;
+    height: var(--border-height);
+    left: 0;
+    bottom: -1px;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    transition: transform var(--timing) ease;
+  }
+
+  .slippery-parrot-form:focus-within {
+    border-color: var(--primary, #003527);
+    box-shadow: 0 4px 14px rgba(0, 53, 39, 0.12);
+  }
+
+  .slippery-parrot-form:focus-within::before {
+    transform: scaleX(1);
+  }
+
+  .slippery-parrot-form .reset-btn {
+    background: none;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--on-surface-variant, #707974);
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .slippery-parrot-form .reset-btn:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: var(--on-surface, #151c27);
+  }
+
+  .slippery-parrot-form .search-input-field:not(:placeholder-shown) ~ .reset-btn {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .slippery-parrot-form .reset-btn svg {
+    width: 16px;
+    height: 16px;
+  }
 }
+
 
 

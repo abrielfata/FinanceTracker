@@ -5,7 +5,9 @@ import ConfirmDialog from '../components/ui/ConfirmDialog';
 import Skeleton from '../components/ui/Skeleton';
 import DateRangeFilter from '../components/ui/DateRangeFilter';
 import DropdownFilter from '../components/ui/DropdownFilter';
+import SearchInput from '../components/ui/SearchInput';
 import TransaksiForm, { type TransaksiFormData } from '../components/transaksi/TransaksiForm';
+
 import toast from 'react-hot-toast';
 import api from '../lib/axios';
 import { formatRupiah, KATEGORI_ICON, KATEGORI_COLOR, formatTanggal, exportToExcel, getSiklusDateRange } from '../utils/helpers';
@@ -217,18 +219,15 @@ export default function Transaksi() {
           
           {/* Top Row: Search & Actions */}
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
-            <div className="relative flex-1 w-full">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
-              <input 
-                id="search-transaksi"
-                type="text" 
-                aria-label="Cari transaksi berdasarkan kategori atau deskripsi"
-                placeholder="Cari transaksi berdasarkan kategori atau deskripsi..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border border-outline-variant rounded-xl text-body-md focus:outline-none focus:ring-primary focus:border-primary transition-colors bg-white text-on-surface shadow-sm"
-              />
-            </div>
+            <SearchInput
+              id="search-transaksi"
+              ariaLabel="Cari transaksi berdasarkan kategori atau deskripsi"
+              placeholder="Cari transaksi berdasarkan kategori atau deskripsi..."
+              value={searchQuery}
+              onChange={setSearchQuery}
+              className="flex-1 w-full"
+            />
+
 
 
             <div className="flex gap-3 w-full sm:w-auto">
