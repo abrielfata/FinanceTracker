@@ -1,0 +1,17 @@
+# FiTrack - Personal Finance Tracker
+
+> FiTrack adalah aplikasi pelacak keuangan pribadi dan manajemen anggaran modern berbasis web.
+
+## Ringkasan Fitur
+- **Dashboard**: Catatan ringkasan pemasukan, pengeluaran, saldo, serta alokasi anggaran bulanan.
+- **Transaksi**: Catat, edit, hapus, filter berdasarkan tanggal/kategori, dan ekspor data ke Excel.
+- **Budget**: Pengaturan target anggaran per kategori dengan peringatan otomatis.
+- **Tagihan**: Manajemen tagihan rutin dan sistem pengingat jatuh tempo.
+- **Pengaturan**: Pengelolaan profil pengguna dan siklus tanggal gajian/keuangan.
+
+## Rute Utama
+- `/` - Dashboard utama
+- `/transaksi` - Riwayat & kelola transaksi
+- `/budget` - Anggaran & batas pengeluaran
+- `/tagihan` - Pengingat & pembayaran tagihan
+- `/pengaturan` - Profil & konfigurasi siklus gajian

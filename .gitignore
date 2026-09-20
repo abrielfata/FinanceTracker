@@ -76,3 +76,8 @@ Desktop.ini
 # =========================
 .agents/
 skills-lock.json
+
+# Developer Notes & Obsidian
+Developer_Profile_Obsidian.md
+*.obsidian
+.obsidian/

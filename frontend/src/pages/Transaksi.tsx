@@ -220,13 +220,16 @@ export default function Transaksi() {
             <div className="relative flex-1 w-full">
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
               <input 
+                id="search-transaksi"
                 type="text" 
+                aria-label="Cari transaksi berdasarkan kategori atau deskripsi"
                 placeholder="Cari transaksi berdasarkan kategori atau deskripsi..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-11 pr-4 py-3 border border-outline-variant rounded-xl text-body-md focus:outline-none focus:ring-primary focus:border-primary transition-colors bg-white text-on-surface shadow-sm"
               />
             </div>
+
 
             <div className="flex gap-3 w-full sm:w-auto">
               <button

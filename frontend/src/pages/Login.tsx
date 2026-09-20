@@ -66,6 +66,7 @@ export default function Login() {
               <div className="mt-1">
                 <input
                   {...register('email')}
+                  id="email"
                   type="email"
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.email ? 'border-error' : 'border-outline-variant'
@@ -84,6 +85,7 @@ export default function Login() {
               <div className="mt-1">
                 <input
                   {...register('password')}
+                  id="password"
                   type="password"
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.password ? 'border-error' : 'border-outline-variant'
@@ -94,6 +96,7 @@ export default function Login() {
                 )}
               </div>
             </div>
+
 
             <div>
               <button

@@ -78,8 +78,9 @@ export default function Pengaturan() {
 
               <form onSubmit={handleUpdateProfile} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-on-surface-variant mb-1">Nama Lengkap</label>
+                  <label htmlFor="nama-profil" className="block text-sm font-medium text-on-surface-variant mb-1">Nama Lengkap</label>
                   <input 
+                    id="nama-profil"
                     type="text" 
                     value={nama} 
                     onChange={(e) => setNama(e.target.value)}
@@ -88,8 +89,9 @@ export default function Pengaturan() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-on-surface-variant mb-1">Email</label>
+                  <label htmlFor="email-profil" className="block text-sm font-medium text-on-surface-variant mb-1">Email</label>
                   <input 
+                    id="email-profil"
                     type="email" 
                     value={user?.email || ''} 
                     disabled 
@@ -98,8 +100,9 @@ export default function Pengaturan() {
                   <p className="mt-2 text-xs text-on-surface-variant">Email tidak dapat diubah saat ini.</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-on-surface-variant mb-1">Tgl Siklus Keuangan</label>
+                  <label htmlFor="siklusTgl" className="block text-sm font-medium text-on-surface-variant mb-1">Tgl Siklus Keuangan</label>
                   <select 
+                    id="siklusTgl"
                     value={siklusTgl} 
                     onChange={(e) => setSiklusTgl(e.target.value)}
                     className="w-full px-4 py-3 border border-outline-variant rounded-xl text-body-md focus:outline-none focus:ring-primary focus:border-primary transition-colors bg-white text-on-surface"
@@ -128,8 +131,9 @@ export default function Pengaturan() {
               
               <form onSubmit={handleUpdatePassword} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-on-surface-variant mb-1">Password Lama</label>
+                  <label htmlFor="oldPassword" className="block text-sm font-medium text-on-surface-variant mb-1">Password Lama</label>
                   <input 
+                    id="oldPassword"
                     type="password" 
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
@@ -138,8 +142,9 @@ export default function Pengaturan() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-on-surface-variant mb-1">Password Baru</label>
+                  <label htmlFor="newPassword" className="block text-sm font-medium text-on-surface-variant mb-1">Password Baru</label>
                   <input 
+                    id="newPassword"
                     type="password" 
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
@@ -148,6 +153,7 @@ export default function Pengaturan() {
                     required
                   />
                 </div>
+
                 <div className="pt-2">
                   <button
                     type="submit"
