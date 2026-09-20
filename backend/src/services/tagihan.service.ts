@@ -17,17 +17,32 @@ export const getTagihanList = async (userId: string, bulan?: string, tahun?: str
 
   // Ensure tagihan_bulan exists for all active tagihan for the requested month/year
   if (activeTagihan.length > 0) {
+    const existingEntries = await db
+      .select({ tagihanId: tagihanBulan.tagihanId })
+      .from(tagihanBulan)
+      .where(
+        and(
+          eq(tagihanBulan.userId, userId),
+          eq(tagihanBulan.bulan, targetBulan),
+          eq(tagihanBulan.tahun, targetTahun)
+        )
+      );
+
+    const existingTagihanIds = new Set(existingEntries.map((e) => e.tagihanId));
+
     for (const t of activeTagihan) {
-      await db
-        .insert(tagihanBulan)
-        .values({
-          tagihanId: t.id,
-          userId,
-          bulan: targetBulan,
-          tahun: targetTahun,
-          status: 'belum_lunas',
-        })
-        .onConflictDoNothing();
+      if (!existingTagihanIds.has(t.id)) {
+        await db
+          .insert(tagihanBulan)
+          .values({
+            tagihanId: t.id,
+            userId,
+            bulan: targetBulan,
+            tahun: targetTahun,
+            status: 'belum_lunas',
+          })
+          .onConflictDoNothing();
+      }
     }
   }
 
