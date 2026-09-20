@@ -71,6 +71,7 @@ export const transaksi = pgTable('transaksi', {
   deskripsi: text('deskripsi'),
   tanggal: date('tanggal').notNull().default(sql`CURRENT_DATE`),
   tagihanBulanId: uuid('tagihan_bulan_id').references(() => tagihanBulan.id, { onDelete: 'set null' }),
+  isBudgeted: boolean('is_budgeted').default(true).notNull(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 },

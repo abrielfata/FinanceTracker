@@ -18,6 +18,7 @@ interface TransaksiItem {
   kategori: string;
   deskripsi: string | null;
   tanggal: string;
+  isBudgeted?: boolean;
 }
 
 type SortOption = 'terbaru' | 'terlama' | 'terbesar' | 'terkecil';
@@ -34,6 +35,7 @@ export default function Transaksi() {
   const [endDate, setEndDate] = useState(() => getSiklusDateRange(siklusTgl).end);
 
   const [jenisFilter, setJenisFilter] = useState<'semua' | 'pemasukan' | 'pengeluaran'>('semua');
+  const [budgetFilter, setBudgetFilter] = useState<'semua' | 'true' | 'false'>('semua');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<SortOption>('terbaru');
   
@@ -54,7 +56,7 @@ export default function Transaksi() {
   useEffect(() => {
     setPage(1);
     fetchTransaksi(1, true);
-  }, [startDate, endDate, jenisFilter]);
+  }, [startDate, endDate, jenisFilter, budgetFilter]);
 
   const fetchTransaksi = async (targetPage: number = 1, reset: boolean = false) => {
     if (reset) {
@@ -66,6 +68,7 @@ export default function Transaksi() {
     try {
       const params: any = { startDate, endDate, page: targetPage, limit: 15 };
       if (jenisFilter !== 'semua') params.jenis = jenisFilter;
+      if (budgetFilter !== 'semua') params.isBudgeted = budgetFilter;
       
       const res = await api.get('/transaksi', { params });
       
@@ -264,6 +267,16 @@ export default function Transaksi() {
                 { value: 'pemasukan', label: 'Pemasukan' },
               ]}
             />
+
+            <DropdownFilter
+              value={budgetFilter}
+              onChange={(val) => setBudgetFilter(val as any)}
+              options={[
+                { value: 'semua', label: 'Semua Status Budget' },
+                { value: 'true', label: 'Hitung ke Budget' },
+                { value: 'false', label: 'Pengeluaran Biasa' },
+              ]}
+            />
             
             <DropdownFilter
               value={sortOrder}
@@ -329,7 +342,20 @@ export default function Transaksi() {
                             <span className="material-symbols-outlined">{KATEGORI_ICON[t.kategori] || 'category'}</span>
                           </div>
                           <div>
-                            <p className="font-body text-body-md font-bold text-on-surface leading-tight mb-1">{t.kategori}</p>
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-body text-body-md font-bold text-on-surface leading-tight">{t.kategori}</p>
+                              {t.jenis === 'pengeluaran' && (
+                                t.isBudgeted !== false ? (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-100/80 text-emerald-800 border border-emerald-200">
+                                    Budget
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-gray-100 text-gray-600 border border-gray-200">
+                                    Non-Budget
+                                  </span>
+                                )
+                              )}
+                            </div>
                             <div className="flex items-center gap-2">
                               {t.deskripsi && (
                                 <p className="font-body text-body-sm text-on-surface-variant truncate max-w-[150px] sm:max-w-[300px]">{t.deskripsi}</p>

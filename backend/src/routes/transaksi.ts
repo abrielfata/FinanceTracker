@@ -12,6 +12,7 @@ const transaksiSchema = z.object({
   kategori: z.string().min(1, 'Kategori wajib diisi'),
   deskripsi: z.string().optional(),
   tanggal: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Format tanggal: YYYY-MM-DD'),
+  isBudgeted: z.boolean().default(true),
 });
 
 router.get('/', async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
