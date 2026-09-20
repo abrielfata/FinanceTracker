@@ -5,8 +5,8 @@ const navItems = [
   { to: '/transaksi', icon: 'receipt_long', label: 'Transaksi' },
   { to: '/budget', icon: 'account_balance_wallet', label: 'Budget' },
   { to: '/tagihan', icon: 'calendar_today', label: 'Tagihan' },
-  { to: '/pengaturan', icon: 'person', label: 'Akun' },
 ];
+
 
 export default function MobileNav() {
   return (
