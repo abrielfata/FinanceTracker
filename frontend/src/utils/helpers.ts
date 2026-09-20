@@ -255,14 +255,31 @@ export const exportToExcel = async (data: ExportData, filename: string) => {
 
 // Kategori icons (Material Symbols)
 export const KATEGORI_CONFIG = [
-  { name: 'Makan & Minum', type: 'pengeluaran', icon: 'restaurant', color: 'bg-orange-100 text-orange-600' },
+  // Pengeluaran Spesifik
+  { name: 'Belanja Pribadi', type: 'pengeluaran', icon: 'shopping_bag', color: 'bg-pink-100 text-pink-600' },
+  { name: 'Date & Pasangan', type: 'pengeluaran', icon: 'favorite', color: 'bg-rose-100 text-rose-600' },
+  { name: 'Makan Harian', type: 'pengeluaran', icon: 'restaurant', color: 'bg-orange-100 text-orange-600' },
+  { name: 'Nongkrong & Cafe', type: 'pengeluaran', icon: 'local_cafe', color: 'bg-amber-100 text-amber-700' },
+  { name: 'Bensin / BBM', type: 'pengeluaran', icon: 'local_gas_station', color: 'bg-blue-100 text-blue-600' },
+  { name: 'Ojek Online & Transportasi', type: 'pengeluaran', icon: 'two_wheeler', color: 'bg-sky-100 text-sky-700' },
+  { name: 'Parkir & Tol', type: 'pengeluaran', icon: 'local_parking', color: 'bg-slate-100 text-slate-600' },
+  { name: 'Hiburan & Rekreasi', type: 'pengeluaran', icon: 'movie', color: 'bg-purple-100 text-purple-600' },
+  { name: 'Kesehatan & Skincare', type: 'pengeluaran', icon: 'medical_services', color: 'bg-red-100 text-red-600' },
+  { name: 'Pendidikan & Skripsi', type: 'pengeluaran', icon: 'school', color: 'bg-indigo-100 text-indigo-600' },
+  { name: 'Tagihan & Utilitas', type: 'pengeluaran', icon: 'receipt', color: 'bg-yellow-100 text-yellow-700' },
+  { name: 'Tabungan & Sedekah', type: 'pengeluaran', icon: 'savings', color: 'bg-teal-100 text-teal-700' },
+  
+  // Kategori Umum (Legacy Kompatibel)
+  { name: 'Makan & Minum', type: 'pengeluaran', icon: 'flatware', color: 'bg-orange-100 text-orange-600' },
   { name: 'Transportasi', type: 'pengeluaran', icon: 'directions_car', color: 'bg-blue-100 text-blue-600' },
-  { name: 'Hiburan', type: 'pengeluaran', icon: 'movie', color: 'bg-purple-100 text-purple-600' },
-  { name: 'Kesehatan', type: 'pengeluaran', icon: 'medical_services', color: 'bg-red-100 text-red-600' },
-  { name: 'Pendidikan', type: 'pengeluaran', icon: 'school', color: 'bg-indigo-100 text-indigo-600' },
-  { name: 'Tagihan', type: 'pengeluaran', icon: 'receipt', color: 'bg-yellow-100 text-yellow-700' },
-  { name: 'Belanja', type: 'pengeluaran', icon: 'shopping_bag', color: 'bg-pink-100 text-pink-600' },
-  { name: 'Tabungan', type: 'pengeluaran', icon: 'savings', color: 'bg-teal-100 text-teal-700' },
+  { name: 'Belanja', type: 'pengeluaran', icon: 'shopping_cart', color: 'bg-pink-100 text-pink-600' },
+  { name: 'Hiburan', type: 'pengeluaran', icon: 'confirmation_number', color: 'bg-purple-100 text-purple-600' },
+  { name: 'Kesehatan', type: 'pengeluaran', icon: 'health_and_safety', color: 'bg-red-100 text-red-600' },
+  { name: 'Pendidikan', type: 'pengeluaran', icon: 'menu_book', color: 'bg-indigo-100 text-indigo-600' },
+  { name: 'Tagihan', type: 'pengeluaran', icon: 'payments', color: 'bg-yellow-100 text-yellow-700' },
+  { name: 'Tabungan', type: 'pengeluaran', icon: 'account_balance', color: 'bg-teal-100 text-teal-700' },
+
+  // Pemasukan
   { name: 'Gaji', type: 'pemasukan', icon: 'account_balance_wallet', color: 'bg-emerald-100 text-emerald-700' },
   { name: 'Bonus', type: 'pemasukan', icon: 'redeem', color: 'bg-yellow-100 text-yellow-700' },
   { name: 'Hasil Investasi', type: 'pemasukan', icon: 'trending_up', color: 'bg-blue-100 text-blue-700' },
