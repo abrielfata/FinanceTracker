@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
 import api from '../../lib/axios';
+import LogoutButton from '../ui/LogoutButton';
 
 const navItems = [
   { to: '/', icon: 'dashboard', label: 'Dashboard', exact: true },
@@ -61,9 +62,9 @@ export default function Sidebar() {
       </div>
 
       {/* User + Logout */}
-      <div className="p-lg mx-4 mb-xl bg-surface-container-low rounded-2xl">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 rounded-full bg-premium-charcoal text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+      <div className="p-lg mx-4 mb-xl bg-surface-container-low rounded-2xl flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-9 h-9 rounded-full bg-premium-charcoal text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
             {user?.nama?.[0]?.toUpperCase() ?? 'U'}
           </div>
           <div className="min-w-0">
@@ -71,14 +72,9 @@ export default function Sidebar() {
             <p className="font-body text-body-sm text-on-surface-variant truncate text-xs">{user?.email}</p>
           </div>
         </div>
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-2 text-body-sm text-on-surface-variant hover:text-error transition-colors font-medium"
-        >
-          <span className="material-symbols-outlined text-base">logout</span>
-          Keluar
-        </button>
+        <LogoutButton onClick={handleLogout} label="Keluar" />
       </div>
     </nav>
   );
 }
+

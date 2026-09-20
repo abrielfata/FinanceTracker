@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Header from '../components/layout/Header';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
+import LogoutButton from '../components/ui/LogoutButton';
 import { useAuthStore } from '../store/useAuthStore';
 import api from '../lib/axios';
 import { useNavigate } from 'react-router-dom';
@@ -175,19 +176,16 @@ export default function Pengaturan() {
                 Keluar dari akun aplikasi FiTrack. Pastikan semua pekerjaanmu sudah tersimpan.
               </p>
               
-              <button
-                type="button"
-                onClick={() => setShowLogoutConfirm(true)}
-                className="w-full flex items-center justify-center gap-2 py-3 px-4 border-2 border-error text-error hover:bg-error hover:text-white rounded-xl font-bold transition-colors"
-              >
-                <span className="material-symbols-outlined text-[20px]">logout</span>
-                Keluar Akun
-              </button>
+              <div className="flex items-center gap-3">
+                <LogoutButton onClick={() => setShowLogoutConfirm(true)} label="Keluar Akun" />
+                <span className="text-body-sm font-medium text-on-surface-variant">Klik untuk keluar</span>
+              </div>
             </div>
           </div>
 
         </div>
       </main>
+
 
       <ConfirmDialog
         isOpen={showLogoutConfirm}

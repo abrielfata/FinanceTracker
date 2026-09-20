@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { getGreeting } from '../../utils/helpers';
 import NotificationDropdown from './NotificationDropdown';
 import ConfirmDialog from '../ui/ConfirmDialog';
+import LogoutButton from '../ui/LogoutButton';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../lib/axios';
 
@@ -76,7 +77,7 @@ export default function Header({ title, subtitle, children }: HeaderProps) {
 
           {/* Dropdown Menu */}
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-surface-container-lowest rounded-2xl shadow-premium border border-premium-border overflow-hidden animate-fade-in z-50 py-2">
+            <div className="absolute right-0 mt-2 w-60 bg-surface-container-lowest rounded-2xl shadow-premium border border-premium-border overflow-hidden animate-fade-in z-50 py-2">
               <Link
                 to="/pengaturan"
                 onClick={() => setIsDropdownOpen(false)}
@@ -86,17 +87,15 @@ export default function Header({ title, subtitle, children }: HeaderProps) {
                 Pengaturan Akun
               </Link>
               <div className="h-[1px] w-full bg-premium-border my-1"></div>
-              <button
-                onClick={() => setShowLogoutConfirm(true)}
-                className="flex items-center gap-3 px-4 py-3 text-body-md font-medium text-error hover:bg-error-container transition-colors w-full text-left"
-              >
-                <span className="material-symbols-outlined text-[20px]">logout</span>
-                Keluar
-              </button>
+              <div className="px-4 py-2 flex items-center justify-between">
+                <span className="font-body text-body-sm text-error font-medium">Keluar Akun</span>
+                <LogoutButton onClick={() => setShowLogoutConfirm(true)} label="Keluar" />
+              </div>
             </div>
           )}
         </div>
       </div>
+
       
       <ConfirmDialog
         isOpen={showLogoutConfirm}
