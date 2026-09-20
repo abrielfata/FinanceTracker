@@ -183,8 +183,9 @@ export default function DateRangeFilter({ startDate, endDate, onChange, label }:
             </p>
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
-                <label className="text-xs font-medium text-on-surface-variant w-16">Mulai</label>
+                <label htmlFor="filter-temp-start" className="text-xs font-medium text-on-surface-variant w-16">Mulai</label>
                 <input 
+                  id="filter-temp-start"
                   type="date" 
                   value={tempStart} 
                   onChange={(e) => setTempStart(e.target.value)}
@@ -192,8 +193,9 @@ export default function DateRangeFilter({ startDate, endDate, onChange, label }:
                 />
               </div>
               <div className="flex items-center gap-3">
-                <label className="text-xs font-medium text-on-surface-variant w-16">Sampai</label>
+                <label htmlFor="filter-temp-end" className="text-xs font-medium text-on-surface-variant w-16">Sampai</label>
                 <input 
+                  id="filter-temp-end"
                   type="date" 
                   value={tempEnd} 
                   onChange={(e) => setTempEnd(e.target.value)}
@@ -201,6 +203,7 @@ export default function DateRangeFilter({ startDate, endDate, onChange, label }:
                 />
               </div>
             </div>
+
           </div>
           
           <div className="flex justify-end gap-2">

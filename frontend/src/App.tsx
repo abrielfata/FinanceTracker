@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { useAuthStore } from './store/useAuthStore';
 import api from './lib/axios';
 import { Toaster } from 'react-hot-toast';
@@ -8,14 +8,25 @@ import { Toaster } from 'react-hot-toast';
 import AppLayout from './components/layout/AppLayout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 
-// Pages
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Transaksi from './pages/Transaksi';
-import Budget from './pages/Budget';
-import Tagihan from './pages/Tagihan';
-import Pengaturan from './pages/Pengaturan';
+// Lazy-loaded Pages for performance code-splitting
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Transaksi = lazy(() => import('./pages/Transaksi'));
+const Budget = lazy(() => import('./pages/Budget'));
+const Tagihan = lazy(() => import('./pages/Tagihan'));
+const Pengaturan = lazy(() => import('./pages/Pengaturan'));
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[50vh] p-8">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+        <p className="text-body-sm font-medium text-on-surface-variant">Memuat...</p>
+      </div>
+    </div>
+  );
+}
 
 function AppLayoutWrapper() {
   return (
@@ -64,7 +75,9 @@ function App() {
             <div className="absolute inset-0 rounded-full border-[4px] border-primary border-t-transparent animate-spin"></div>
             <img 
               src="/logo.png" 
-              alt="Logo" 
+              alt="Logo FiTrack" 
+              width="56"
+              height="56"
               className="w-14 h-14 object-contain animate-pulse" 
             />
           </div>
@@ -77,24 +90,27 @@ function App() {
   return (
     <BrowserRouter>
       <Toaster position="top-center" reverseOrder={false} />
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        <Route element={<ProtectedRoute />}>
-          <Route element={<AppLayoutWrapper />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/transaksi" element={<Transaksi />} />
-            <Route path="/budget" element={<Budget />} />
-            <Route path="/tagihan" element={<Tagihan />} />
-            <Route path="/pengaturan" element={<Pengaturan />} />
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayoutWrapper />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/transaksi" element={<Transaksi />} />
+              <Route path="/budget" element={<Budget />} />
+              <Route path="/tagihan" element={<Tagihan />} />
+              <Route path="/pengaturan" element={<Pengaturan />} />
+            </Route>
           </Route>
-        </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
+
 
 export default App;

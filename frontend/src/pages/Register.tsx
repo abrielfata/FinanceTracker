@@ -75,6 +75,7 @@ export default function Register() {
               <div className="mt-1">
                 <input
                   {...register('nama')}
+                  id="nama"
                   type="text"
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.nama ? 'border-error' : 'border-outline-variant'
@@ -93,6 +94,7 @@ export default function Register() {
               <div className="mt-1">
                 <input
                   {...register('email')}
+                  id="email"
                   type="email"
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.email ? 'border-error' : 'border-outline-variant'
@@ -111,6 +113,7 @@ export default function Register() {
               <div className="mt-1">
                 <input
                   {...register('password')}
+                  id="password"
                   type="password"
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.password ? 'border-error' : 'border-outline-variant'
@@ -129,6 +132,7 @@ export default function Register() {
               <div className="mt-1">
                 <input
                   {...register('confirmPassword')}
+                  id="confirmPassword"
                   type="password"
                   className={`appearance-none block w-full px-3 py-2 border ${
                     errors.confirmPassword ? 'border-error' : 'border-outline-variant'
@@ -139,6 +143,7 @@ export default function Register() {
                 )}
               </div>
             </div>
+
 
             <div>
               <button
