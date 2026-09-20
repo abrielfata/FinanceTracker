@@ -225,5 +225,47 @@
     stroke-dashoffset: 0;
     transform: scale(1);
   }
+
+  /* Global Native Checkbox Override (UIverse green-donkey-82 inspired) */
+  input[type="checkbox"]:not(.animated-checkbox-container input) {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.35rem;
+    height: 1.35rem;
+    background-color: #ffffff;
+    border: 2px solid var(--outline-variant);
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    outline: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  input[type="checkbox"]:not(.animated-checkbox-container input):hover:not(:disabled) {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0, 53, 39, 0.12);
+  }
+
+  input[type="checkbox"]:not(.animated-checkbox-container input):checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(0, 53, 39, 0.25);
+    transform: scale(1.05);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M 4 12 L 9 17 L 20 6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 0.9rem 0.9rem;
+    animation: checkboxPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes checkboxPop {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1.05); opacity: 1; }
+  }
 }
+
 
