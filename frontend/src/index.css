@@ -157,4 +157,73 @@
   .animate-pulse-soft {
     animation: pulse-soft 2s ease-in-out infinite;
   }
+
+  /* UIverse Animated Checkbox (green-donkey-82 style) */
+  .animated-checkbox-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .animated-checkbox-container input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  .animated-checkbox-box {
+    position: relative;
+    width: 1.35rem;
+    height: 1.35rem;
+    background-color: #ffffff;
+    border: 2px solid var(--outline-variant);
+    border-radius: 8px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+  }
+
+  .animated-checkbox-container:hover input:not(:disabled) ~ .animated-checkbox-box {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0, 53, 39, 0.12);
+  }
+
+  .animated-checkbox-container input:checked ~ .animated-checkbox-box {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(0, 53, 39, 0.25);
+    transform: scale(1.05);
+  }
+
+  .animated-checkbox-container input:disabled ~ .animated-checkbox-box {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .animated-checkbox-box svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 3.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    transition: stroke-dashoffset 0.3s ease-in-out, transform 0.2s ease-in-out;
+  }
+
+  .animated-checkbox-container input:checked ~ .animated-checkbox-box svg {
+    stroke-dashoffset: 0;
+    transform: scale(1);
+  }
 }
+
