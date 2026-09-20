@@ -2,6 +2,8 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { KATEGORI_LIST } from '../../utils/helpers';
+import AnimatedCheckbox from '../ui/AnimatedCheckbox';
+
 
 const tagihanSchema = z.object({
   nama: z.string().min(1, 'Nama tagihan wajib diisi'),
@@ -137,16 +139,12 @@ export default function TagihanForm({ initialData, onSubmit, isLoading, onCancel
       </div>
 
       {/* Is Berulang */}
-      <div className="flex items-center gap-3 bg-surface-container-low p-4 rounded-xl">
-        <input
+      <div className="bg-surface-container-low p-4 rounded-xl">
+        <AnimatedCheckbox
           {...register('isBerulang')}
-          type="checkbox"
           id="isBerulang"
-          className="w-5 h-5 text-primary bg-white border-outline-variant rounded focus:ring-primary cursor-pointer accent-primary"
+          label="Ulangi tagihan ini setiap bulan"
         />
-        <label htmlFor="isBerulang" className="text-sm font-medium text-on-surface cursor-pointer select-none">
-          Ulangi tagihan ini setiap bulan
-        </label>
       </div>
 
       {/* Actions */}
