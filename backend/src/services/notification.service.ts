@@ -1,6 +1,6 @@
 import { db } from '../db';
 import { tagihan, tagihanBulan, budget } from '../db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, isNull } from 'drizzle-orm';
 import { getSpendingSubquery } from './budget.service';
 
 export interface NotificationItem {
@@ -38,7 +38,14 @@ export const getDynamicNotifications = async (userId: string): Promise<Notificat
         eq(tagihanBulan.tahun, currentTahun)
       )
     )
-    .where(eq(tagihan.userId, userId));
+    .where(
+      and(
+        eq(tagihan.userId, userId),
+        isNull(tagihan.deletedAt)
+      )
+    );
+
+  console.log('NOTIFIKASI - TAGIHAN LIST FETCHED:', tagihanList); // DEBUG
 
   for (const t of tagihanList) {
     if (t.status === 'lunas') continue;
