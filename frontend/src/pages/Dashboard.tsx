@@ -5,7 +5,7 @@ import { formatRupiah, getSiklusDateRange, KATEGORI_ICON } from '../utils/helper
 import { Link } from 'react-router-dom';
 import DateRangeFilter from '../components/ui/DateRangeFilter';
 import Skeleton from '../components/ui/Skeleton';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAuthStore } from '../store/useAuthStore';
 
 interface DashboardSummary {
@@ -45,6 +45,9 @@ export default function Dashboard() {
   const [data, setData] = useState<DashboardSummary | null>(null);
   const [trendData, setTrendData] = useState<TrendItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isBalanceHidden, setIsBalanceHidden] = useState(() => {
+    return localStorage.getItem('fitrack:hide-balance') === 'true';
+  });
   const { user } = useAuthStore();
   const siklusTgl = user?.siklusTgl || 26;
 
@@ -99,6 +102,12 @@ export default function Dashboard() {
     );
   }
 
+  const toggleBalance = () => {
+    const newState = !isBalanceHidden;
+    setIsBalanceHidden(newState);
+    localStorage.setItem('fitrack:hide-balance', String(newState));
+  };
+
   const chartData = [...trendData].map(d => ({
     name: `${BULAN_NAMA[d.bulan - 1]} ${d.tahun.toString().slice(-2)}`,
     Pemasukan: d.pemasukan,
@@ -146,31 +155,64 @@ export default function Dashboard() {
           </div>
           <Link
             to="/transaksi"
-            className="bg-premium-charcoal text-white px-5 py-3 rounded-xl font-body font-medium flex items-center gap-2 hover:bg-premium-charcoal/90 transition-colors shadow-sm"
+            className="bg-premium-charcoal text-white px-5 py-3 rounded-2xl font-body font-medium flex items-center gap-2 hover:bg-black hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md group"
           >
-            <span className="material-symbols-outlined">add</span>
-            Tambah transaksi
+            <span className="material-symbols-outlined text-[20px] transition-transform duration-300 group-hover:rotate-90">add</span>
+            <span>Tambah transaksi</span>
           </Link>
         </div>
 
         {/* Summary Cards Row */}
         <div className="grid grid-cols-2 md:grid-cols-12 gap-4 md:gap-gutter mb-6 md:mb-lg relative z-10">
           {/* Main Balance Card */}
-          <div className="col-span-2 md:col-span-6 bg-premium-charcoal rounded-3xl p-6 md:p-lg text-white shadow-premium relative overflow-hidden flex flex-col justify-between min-h-[140px] md:h-[200px]">
-            <div className="flex justify-between items-start">
-              <h2 className="font-body text-body-sm text-white/80">Saldo saat ini</h2>
-              <span className="material-symbols-outlined text-white/60">account_balance_wallet</span>
-            </div>
-            <div>
-              <p className="font-headline text-headline-xl font-bold mb-4">{formatRupiah(data.saldo)}</p>
+          <div className="col-span-2 md:col-span-6 bg-gradient-to-br from-gray-900 to-black rounded-3xl p-6 md:p-8 text-white shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[140px] md:h-[220px] border border-white/10 group">
+            {/* Background effects */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px] -mr-10 -mt-10 pointer-events-none opacity-50 group-hover:opacity-70 transition-opacity duration-500"></div>
+            
+            <div className="flex justify-between items-start relative z-10">
               <div className="flex items-center gap-3">
-                <span className={`inline-flex items-center gap-1 bg-white/10 px-2 py-1 rounded-lg font-body text-body-sm ${data.persenSaldo >= 0 ? 'text-white' : 'text-error-container'}`}>
-                  <span className="material-symbols-outlined text-[16px]">
-                    {data.persenSaldo >= 0 ? 'arrow_outward' : 'south_west'}
-                  </span>
-                  {Math.abs(data.persenSaldo)}%
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center backdrop-blur-md border border-white/10 shadow-inner">
+                  <span className="material-symbols-outlined text-white/90 text-[20px]">nfc</span>
+                </div>
+                <div>
+                  <h2 className="font-body text-[10px] text-white/50 tracking-[0.2em] font-semibold uppercase mb-0.5">
+                    Total Saldo Aktif
+                  </h2>
+                  <p className="font-mono text-xs text-white/70 tracking-wider">
+                    {new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date())}
+                  </p>
+                </div>
+              </div>
+              <button 
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/90 transition-all backdrop-blur-md border border-white/5 hover:scale-105 active:scale-95"
+                onClick={toggleBalance}
+                title={isBalanceHidden ? "Tampilkan Saldo" : "Sembunyikan Saldo"}
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  {isBalanceHidden ? 'visibility_off' : 'visibility'}
                 </span>
-                <span className="font-body text-body-sm text-white/70">dari bulan lalu</span>
+              </button>
+            </div>
+            
+            <div className="relative z-10 mt-8 mb-2">
+              <p className={`font-headline font-bold mb-4 tracking-tight drop-shadow-md transition-all duration-300 ${isBalanceHidden ? 'text-4xl md:text-5xl text-white/40' : 'text-4xl md:text-5xl text-white'}`}>
+                {isBalanceHidden ? 'Rp •••••••••' : formatRupiah(data.saldo)}
+              </p>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3 bg-white/5 w-fit px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-sm">
+                  <span className={`inline-flex items-center gap-1 font-bold text-xs ${data.persenSaldo >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <span className="material-symbols-outlined text-[14px]">
+                      {data.persenSaldo >= 0 ? 'trending_up' : 'trending_down'}
+                    </span>
+                    {Math.abs(data.persenSaldo)}%
+                  </span>
+                  <span className="font-body text-[11px] text-white/60">Bulan ini</span>
+                </div>
+                
+                {/* Visual Debit Card Brand */}
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] text-white/40 font-semibold tracking-widest uppercase">FiTrack</span>
+                </div>
               </div>
             </div>
           </div>
@@ -299,15 +341,27 @@ export default function Dashboard() {
 
         {/* Tren Chart */}
         <div className="bg-surface-container-lowest rounded-3xl p-6 sm:p-lg border border-premium-border shadow-premium mt-lg">
-          <div className="mb-8">
-            <h3 className="font-headline text-headline-md text-on-surface flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-3xl">bar_chart</span>
-              Tren 6 Bulan Terakhir
-            </h3>
-            <p className="text-body-sm text-on-surface-variant mt-1">Perbandingan Pemasukan dan Pengeluaran.</p>
+          <div className="mb-8 flex justify-between items-center">
+            <div>
+              <h3 className="font-headline text-headline-md text-on-surface flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-3xl">bar_chart</span>
+                Tren 6 Bulan Terakhir
+              </h3>
+              <p className="text-body-sm text-on-surface-variant mt-1">Perbandingan Pemasukan dan Pengeluaran bulanan.</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
+                <span className="text-xs font-semibold text-on-surface-variant">Pemasukan</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-rose-500"></span>
+                <span className="text-xs font-semibold text-on-surface-variant">Pengeluaran</span>
+              </div>
+            </div>
           </div>
 
-          <div className="h-[400px] w-full">
+          <div className="h-[380px] w-full">
             {chartData.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
                 <span className="material-symbols-outlined text-4xl text-on-surface-variant mb-2">trending_down</span>
@@ -317,32 +371,40 @@ export default function Dashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={chartData}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 20, right: 20, left: 10, bottom: 5 }}
                   barGap={8}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
                   <XAxis 
                     dataKey="name" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: '#6B7280', fontSize: 12, fontWeight: 500 }}
+                    tick={{ fill: '#9CA3AF', fontSize: 12, fontWeight: 500 }}
                     dy={10}
                   />
                   <YAxis 
                     yAxisId="left" 
                     orientation="left" 
                     stroke="none"
-                    tick={{ fill: '#6B7280', fontSize: 12 }}
-                    tickFormatter={(value) => `Rp ${value.toLocaleString('id-ID')}`}
-                    width={100}
+                    tick={{ fill: '#9CA3AF', fontSize: 12 }}
+                    tickFormatter={(value) => `Rp ${(value / 1000).toLocaleString('id-ID')}k`}
+                    width={85}
                   />
-                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
-                  <Legend 
-                    wrapperStyle={{ paddingTop: '20px' }}
-                    iconType="circle"
+                  <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.02)' }} />
+                  <Bar 
+                    yAxisId="left" 
+                    dataKey="Pemasukan" 
+                    fill="#10B981" 
+                    radius={[8, 8, 0, 0]} 
+                    maxBarSize={45} 
                   />
-                  <Bar yAxisId="left" dataKey="Pemasukan" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={50} />
-                  <Bar yAxisId="left" dataKey="Pengeluaran" fill="#EF4444" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                  <Bar 
+                    yAxisId="left" 
+                    dataKey="Pengeluaran" 
+                    fill="#F43F5E" 
+                    radius={[8, 8, 0, 0]} 
+                    maxBarSize={45} 
+                  />
                 </BarChart>
               </ResponsiveContainer>
             )}
