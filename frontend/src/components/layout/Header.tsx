@@ -38,20 +38,20 @@ export default function Header({ title, subtitle, children }: HeaderProps) {
   };
 
   return (
-    <header className="flex justify-between items-center w-full px-4 py-4 md:px-xl md:py-lg sticky top-0 bg-[#F7F6F0]/90 backdrop-blur-sm z-30 border-b border-transparent">
-      <div>
+    <header className="flex justify-between items-center w-full px-4 py-3 md:px-xl md:py-lg sticky top-0 bg-[#F7F6F0]/90 backdrop-blur-sm z-30 border-b border-transparent gap-3">
+      <div className="min-w-0 flex-1 pr-2">
         {subtitle ? (
-          <p className="font-body text-body-sm text-on-surface-variant">{subtitle}</p>
+          <p className="font-body text-xs md:text-body-sm text-on-surface-variant truncate">{subtitle}</p>
         ) : (
-          <p className="font-body text-body-sm text-on-surface-variant">
+          <p className="font-body text-xs md:text-body-sm text-on-surface-variant truncate">
             {getGreeting()}, {user?.nama?.split(' ')[0] ?? 'Pengguna'}
           </p>
         )}
-        <h1 className="font-headline text-2xl md:text-headline-lg text-on-surface truncate">{title}</h1>
+        <h1 className="font-headline text-lg sm:text-xl md:text-headline-lg text-on-surface truncate leading-tight">{title}</h1>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4 shrink-0">
         {children}
         {/* Lonceng Notifikasi Interaktif */}
         <NotificationDropdown />
@@ -60,16 +60,16 @@ export default function Header({ title, subtitle, children }: HeaderProps) {
         <div className="relative" ref={dropdownRef}>
           <div 
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-3 pl-2 cursor-pointer hover:bg-surface-container-low p-1.5 rounded-full transition-colors"
+            className="flex items-center gap-1.5 sm:gap-3 cursor-pointer hover:bg-surface-container-low p-1 sm:p-1.5 rounded-full transition-colors"
           >
-            <div className="w-10 h-10 rounded-full bg-premium-charcoal text-white flex items-center justify-center font-bold">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-premium-charcoal text-white flex items-center justify-center font-bold text-xs sm:text-base shrink-0">
               {user?.nama?.[0]?.toUpperCase() ?? 'U'}
             </div>
             <div className="hidden sm:block">
               <p className="font-body font-medium text-on-surface text-body-md leading-tight">{user?.nama}</p>
               <p className="font-body text-on-surface-variant text-xs">Pelajar</p>
             </div>
-            <span className={`material-symbols-outlined text-on-surface-variant transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}>
+            <span className={`material-symbols-outlined text-on-surface-variant text-[18px] sm:text-[24px] transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}>
               expand_more
             </span>
           </div>
