@@ -4,7 +4,6 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { getGreeting } from '../../utils/helpers';
 import NotificationDropdown from './NotificationDropdown';
 import ConfirmDialog from '../ui/ConfirmDialog';
-import LogoutButton from '../ui/LogoutButton';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../lib/axios';
 
@@ -86,11 +85,17 @@ export default function Header({ title, subtitle, children }: HeaderProps) {
                 <span className="material-symbols-outlined text-[20px] text-on-surface-variant">settings</span>
                 Pengaturan Akun
               </Link>
-              <div className="h-[1px] w-full bg-premium-border my-1"></div>
-              <div className="px-4 py-2 flex items-center justify-between">
-                <span className="font-body text-body-sm text-error font-medium">Keluar Akun</span>
-                <LogoutButton onClick={() => setShowLogoutConfirm(true)} label="Keluar" />
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsDropdownOpen(false);
+                  setShowLogoutConfirm(true);
+                }}
+                className="flex items-center gap-3 px-4 py-3 text-body-md font-medium text-error hover:bg-error-container/20 transition-colors w-full text-left"
+              >
+                <span className="material-symbols-outlined text-[20px] text-error">logout</span>
+                Keluar Akun
+              </button>
             </div>
           )}
         </div>
