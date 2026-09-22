@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom';
 
 const navItems = [
-  { to: '/', icon: 'dashboard', label: 'Beranda', exact: true },
   { to: '/transaksi', icon: 'receipt_long', label: 'Transaksi' },
   { to: '/budget', icon: 'account_balance_wallet', label: 'Budget' },
+  { to: '/', icon: 'dashboard', label: 'Beranda', exact: true },
   { to: '/tagihan', icon: 'calendar_today', label: 'Tagihan' },
+  { to: '/tabungan', icon: 'savings', label: 'Tabungan' },
 ];
 
 

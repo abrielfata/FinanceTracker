@@ -16,6 +16,7 @@ const Transaksi = lazy(() => import('./pages/Transaksi'));
 const Budget = lazy(() => import('./pages/Budget'));
 const Tagihan = lazy(() => import('./pages/Tagihan'));
 const Pengaturan = lazy(() => import('./pages/Pengaturan'));
+const SavingGoals = lazy(() => import('./pages/SavingGoals'));
 
 function PageLoader() {
   return (
@@ -101,6 +102,7 @@ function App() {
               <Route path="/transaksi" element={<Transaksi />} />
               <Route path="/budget" element={<Budget />} />
               <Route path="/tagihan" element={<Tagihan />} />
+              <Route path="/tabungan" element={<SavingGoals />} />
               <Route path="/pengaturan" element={<Pengaturan />} />
             </Route>
           </Route>

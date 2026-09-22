@@ -72,6 +72,8 @@ export default function Tagihan() {
       await api.delete(`/tagihan/${deleteId}`);
       toast.success('Tagihan berhasil dihapus');
       fetchTagihan();
+      // Pemicu refetch notifikasi global
+      window.dispatchEvent(new Event('fitrack:refresh-notifications'));
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Gagal menghapus tagihan');
     } finally {
@@ -91,6 +93,8 @@ export default function Tagihan() {
       }
       setIsModalOpen(false);
       fetchTagihan();
+      // Pemicu refetch notifikasi global
+      window.dispatchEvent(new Event('fitrack:refresh-notifications'));
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Gagal menyimpan tagihan');
     } finally {
@@ -115,6 +119,8 @@ export default function Tagihan() {
         toast.success('Tagihan berhasil dilunasi');
       }
       fetchTagihan();
+      // Pemicu refetch notifikasi global
+      window.dispatchEvent(new Event('fitrack:refresh-notifications'));
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Gagal mengubah status tagihan');
     }
