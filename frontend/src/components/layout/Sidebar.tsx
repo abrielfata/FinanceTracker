@@ -5,6 +5,7 @@ const navItems = [
   { to: '/transaksi', icon: 'receipt_long', label: 'Transaksi' },
   { to: '/budget', icon: 'account_balance_wallet', label: 'Budget' },
   { to: '/tagihan', icon: 'calendar_today', label: 'Tagihan' },
+  { to: '/tabungan', icon: 'savings', label: 'Tabungan' },
 ];
 
 export default function Sidebar() {

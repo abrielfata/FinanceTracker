@@ -94,6 +94,24 @@ export const budget = pgTable(
   (t) => [unique().on(t.userId, t.kategori, t.bulan, t.tahun)]
 );
 
+// ─── Saving Goals (Target Tabungan) ───────────────────────────────────────────
+export const savingGoals = pgTable('saving_goals', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  nama: text('nama').notNull(),
+  targetNominal: bigint('target_nominal', { mode: 'number' }).notNull(),
+  terkumpulNominal: bigint('terkumpul_nominal', { mode: 'number' }).notNull().default(0),
+  targetBulan: text('target_bulan'), // Format: 'YYYY-MM'
+  kategori: text('kategori').notNull().default('Tabungan'), // 'Darurat' | 'Liburan' | 'Kendaraan' | 'Gadget' | 'Investasi' | 'Lainnya'
+  warna: text('warna').notNull().default('#2B6CB0'),
+  ikon: text('ikon').notNull().default('savings'),
+  catatan: text('catatan'),
+  isCompleted: boolean('is_completed').default(false),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+});
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -104,3 +122,5 @@ export type Transaksi = typeof transaksi.$inferSelect;
 export type NewTransaksi = typeof transaksi.$inferInsert;
 export type Budget = typeof budget.$inferSelect;
 export type NewBudget = typeof budget.$inferInsert;
+export type SavingGoal = typeof savingGoals.$inferSelect;
+export type NewSavingGoal = typeof savingGoals.$inferInsert;

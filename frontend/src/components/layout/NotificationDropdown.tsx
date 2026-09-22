@@ -17,13 +17,23 @@ export default function NotificationDropdown() {
 
   useEffect(() => {
     fetchNotifications();
+
+    // Dengarkan event global ketika status transaksi, tagihan, atau budget berubah
+    const handleRefresh = () => {
+      fetchNotifications();
+    };
+    window.addEventListener('fitrack:refresh-notifications', handleRefresh);
+
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      window.removeEventListener('fitrack:refresh-notifications', handleRefresh);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const fetchNotifications = async () => {

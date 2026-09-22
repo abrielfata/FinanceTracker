@@ -13,6 +13,7 @@ import budgetRoutes from './routes/budget';
 import dashboardRoutes from './routes/dashboard';
 import notificationRoutes from './routes/notifications';
 import userRoutes from './routes/user';
+import savingGoalsRoutes from './routes/savingGoals';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -53,6 +54,7 @@ app.use('/api/budget', budgetRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/saving-goals', savingGoalsRoutes);
 
 // ─── Error Handler ────────────────────────────────────────────────────────────
 app.use(errorHandler);

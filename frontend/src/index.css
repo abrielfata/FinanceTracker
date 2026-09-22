@@ -271,22 +271,23 @@
   .slippery-parrot-form {
     --timing: 0.3s;
     --width-of-input: 100%;
-    --height-of-input: 46px;
+    --height-of-input: 50px;
     --border-height: 2px;
     --input-bg: #ffffff;
     --border-color: var(--outline-variant, #bfc9c3);
-    --border-radius: 14px;
+    --border-radius: 16px;
     position: relative;
     width: var(--width-of-input);
     height: var(--height-of-input);
+    min-height: 48px;
     display: flex;
     align-items: center;
-    padding-inline: 0.85em;
+    padding-inline: 1.1em;
     border-radius: var(--border-radius);
     transition: all var(--timing) ease;
     background: var(--input-bg);
     border: 1px solid var(--border-color);
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
   }
 
   .slippery-parrot-form .search-btn {
@@ -301,8 +302,8 @@
   }
 
   .slippery-parrot-form .search-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     transition: transform var(--timing) ease, color var(--timing) ease;
   }
 
@@ -312,13 +313,13 @@
   }
 
   .slippery-parrot-form .search-input-field {
-    font-size: 0.925rem;
+    font-size: 0.95rem;
     font-weight: 500;
     background-color: transparent;
     width: 100%;
     height: 100%;
     padding-inline-end: 0.8em;
-    padding-inline-start: 0.7em;
+    padding-inline-start: 0.85em;
     border: none;
     outline: none;
     color: var(--on-surface, #151c27);

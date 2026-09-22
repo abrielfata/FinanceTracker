@@ -8,6 +8,13 @@
       "when": 1788331051581,
       "tag": "0000_past_silver_centurion",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790104198872,
+      "tag": "0001_outgoing_sandman",
+      "breakpoints": true
     }
   ]
 }
