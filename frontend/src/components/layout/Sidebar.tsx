@@ -1,7 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/useAuthStore';
-import api from '../../lib/axios';
-import LogoutButton from '../ui/LogoutButton';
+import { NavLink } from 'react-router-dom';
 
 const navItems = [
   { to: '/', icon: 'dashboard', label: 'Dashboard', exact: true },
@@ -11,15 +8,6 @@ const navItems = [
 ];
 
 export default function Sidebar() {
-  const { user, logout } = useAuthStore();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await api.post('/auth/logout').catch(() => {});
-    logout();
-    navigate('/login');
-  };
-
   return (
     <nav className="hidden md:flex flex-col h-screen fixed left-0 top-0 w-[260px] bg-surface border-r border-premium-border z-20">
       {/* Brand */}
@@ -59,20 +47,6 @@ export default function Sidebar() {
           ))}
         </ul>
 
-      </div>
-
-      {/* User + Logout */}
-      <div className="p-lg mx-4 mb-xl bg-surface-container-low rounded-2xl flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-full bg-premium-charcoal text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
-            {user?.nama?.[0]?.toUpperCase() ?? 'U'}
-          </div>
-          <div className="min-w-0">
-            <p className="font-body font-semibold text-body-sm text-on-surface truncate">{user?.nama}</p>
-            <p className="font-body text-body-sm text-on-surface-variant truncate text-xs">{user?.email}</p>
-          </div>
-        </div>
-        <LogoutButton onClick={handleLogout} label="Keluar" />
       </div>
     </nav>
   );
