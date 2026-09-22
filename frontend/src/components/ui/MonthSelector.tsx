@@ -65,7 +65,7 @@ export default function MonthSelector({
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-48 max-h-[300px] overflow-y-auto custom-scrollbar bg-surface-container-lowest rounded-2xl shadow-premium border border-premium-border animate-fade-in py-2 z-50">
+        <div className="absolute left-0 mt-2 w-48 max-w-[calc(100vw-2rem)] max-h-[300px] overflow-y-auto custom-scrollbar bg-surface-container-lowest rounded-2xl shadow-premium border border-premium-border animate-fade-in py-2 z-50">
           {recentMonths.map((m) => (
             <button
               key={`${m.bulan}-${m.tahun}`}

@@ -53,7 +53,7 @@ export default function DropdownFilter({ options, value, onChange, label }: Drop
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 min-w-[160px] bg-surface-container-lowest rounded-2xl shadow-premium border border-premium-border overflow-hidden animate-fade-in py-2 z-50">
+        <div className="absolute left-0 mt-2 min-w-[160px] max-w-[calc(100vw-2rem)] bg-surface-container-lowest rounded-2xl shadow-premium border border-premium-border overflow-hidden animate-fade-in py-2 z-50">
           {options.map((o) => (
             <button
               key={o.value}
