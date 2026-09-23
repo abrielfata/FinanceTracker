@@ -171,15 +171,15 @@ export default function SavingGoals() {
   const overallPercentage = totalTarget > 0 ? Math.min(100, Math.round((totalTerkumpul / totalTarget) * 100)) : 0;
 
   return (
-    <div className="flex-1 pb-24 md:pb-12 min-h-screen">
+    <>
       <Header
         title="Target Tabungan"
         subtitle="Rencanakan dan wujudkan impian finansial masa depan"
       />
 
-      <main className="px-4 md:px-xl py-6 max-w-7xl mx-auto space-y-6">
+      <main className="px-4 sm:px-6 md:px-xl py-6 max-w-[1280px] mx-auto space-y-6 animate-fade-in w-full">
         {/* Ringkasan Banner */}
-        <div className="p-6 md:p-8 rounded-3xl bg-premium-charcoal text-white shadow-premium relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="p-5 sm:p-6 md:p-8 rounded-3xl bg-premium-charcoal text-white shadow-premium relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6 w-full">
           <div className="space-y-2 relative z-10">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-amber-300 border border-white/10">
               <span className="material-symbols-outlined text-[16px]">stars</span>
@@ -491,6 +491,6 @@ export default function SavingGoals() {
         message="Apakah kamu yakin ingin menghapus impian tabungan ini? Data yang dihapus tidak dapat dipulihkan."
         confirmText="Hapus"
       />
-    </div>
+    </>
   );
 }
