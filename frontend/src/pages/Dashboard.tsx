@@ -80,7 +80,7 @@ export default function Dashboard() {
     return (
       <>
         <Header title="Dashboard keuangan" />
-        <main className="px-xl pt-lg max-w-[1280px] mx-auto">
+        <main className="px-4 sm:px-6 md:px-xl pt-lg max-w-[1280px] mx-auto w-full min-w-0">
            <div className="flex flex-col sm:flex-row justify-between mb-lg gap-4">
              <Skeleton className="w-64 h-12 rounded-xl" />
              <Skeleton className="w-48 h-12 rounded-xl" />
@@ -139,7 +139,7 @@ export default function Dashboard() {
   return (
     <>
       <Header title="Dashboard keuangan" />
-      <main className="px-xl pt-lg pb-xxl max-w-[1280px] mx-auto animate-fade-in">
+      <main className="px-4 sm:px-6 md:px-xl pt-lg pb-xxl max-w-[1280px] mx-auto animate-fade-in w-full min-w-0">
         
         {/* Month Selector & Add Action */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-lg gap-4 relative z-20">
