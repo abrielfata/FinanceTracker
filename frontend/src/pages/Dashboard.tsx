@@ -110,6 +110,7 @@ export default function Dashboard() {
 
   const chartData = [...trendData].map(d => ({
     name: `${BULAN_NAMA[d.bulan - 1]} ${d.tahun.toString().slice(-2)}`,
+    shortName: BULAN_NAMA[d.bulan - 1],
     Pemasukan: d.pemasukan,
     Pengeluaran: d.pengeluaran,
   }));
@@ -340,28 +341,28 @@ export default function Dashboard() {
         </div>
 
         {/* Tren Chart */}
-        <div className="bg-surface-container-lowest rounded-3xl p-6 sm:p-lg border border-premium-border shadow-premium mt-lg">
-          <div className="mb-8 flex justify-between items-center">
+        <div className="bg-surface-container-lowest rounded-3xl p-4 sm:p-6 md:p-lg border border-premium-border shadow-premium mt-lg">
+          <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
-              <h3 className="font-headline text-headline-md text-on-surface flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-3xl">bar_chart</span>
+              <h3 className="font-headline text-lg sm:text-headline-md text-on-surface flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-2xl sm:text-3xl">bar_chart</span>
                 Tren 6 Bulan Terakhir
               </h3>
-              <p className="text-body-sm text-on-surface-variant mt-1">Perbandingan Pemasukan dan Pengeluaran bulanan.</p>
+              <p className="text-xs sm:text-body-sm text-on-surface-variant mt-0.5">Perbandingan Pemasukan dan Pengeluaran bulanan.</p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
-                <span className="text-xs font-semibold text-on-surface-variant">Pemasukan</span>
+            <div className="flex items-center gap-3 bg-surface-container-low/50 px-3 py-1.5 rounded-full border border-premium-border/40 shrink-0 self-start sm:self-auto">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span className="text-[11px] sm:text-xs font-semibold text-on-surface-variant">Pemasukan</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-rose-500"></span>
-                <span className="text-xs font-semibold text-on-surface-variant">Pengeluaran</span>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                <span className="text-[11px] sm:text-xs font-semibold text-on-surface-variant">Pengeluaran</span>
               </div>
             </div>
           </div>
 
-          <div className="h-[380px] w-full">
+          <div className="h-[320px] sm:h-[380px] w-full">
             {chartData.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
                 <span className="material-symbols-outlined text-4xl text-on-surface-variant mb-2">trending_down</span>
@@ -371,39 +372,47 @@ export default function Dashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={chartData}
-                  margin={{ top: 20, right: 20, left: 10, bottom: 5 }}
-                  barGap={8}
+                  margin={{ top: 15, right: 10, left: -10, bottom: 5 }}
+                  barGap={4}
                 >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
                   <XAxis 
-                    dataKey="name" 
+                    dataKey="shortName" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fill: '#9CA3AF', fontSize: 12, fontWeight: 500 }}
-                    dy={10}
+                    interval={0}
+                    tick={{ fill: '#9CA3AF', fontSize: 11, fontWeight: 600 }}
+                    dy={8}
                   />
                   <YAxis 
                     yAxisId="left" 
                     orientation="left" 
                     stroke="none"
-                    tick={{ fill: '#9CA3AF', fontSize: 12 }}
-                    tickFormatter={(value) => `Rp ${(value / 1000).toLocaleString('id-ID')}k`}
-                    width={85}
+                    tick={{ fill: '#9CA3AF', fontSize: 10 }}
+                    tickFormatter={(val) => {
+                      if (val === 0) return '0';
+                      if (val >= 1_000_000) {
+                        const jt = val / 1_000_000;
+                        return `${jt % 1 === 0 ? jt : jt.toFixed(1)}jt`;
+                      }
+                      return `${Math.round(val / 1000)}rb`;
+                    }}
+                    width={48}
                   />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.02)' }} />
                   <Bar 
                     yAxisId="left" 
                     dataKey="Pemasukan" 
                     fill="#10B981" 
-                    radius={[8, 8, 0, 0]} 
-                    maxBarSize={45} 
+                    radius={[6, 6, 0, 0]} 
+                    maxBarSize={32} 
                   />
                   <Bar 
                     yAxisId="left" 
                     dataKey="Pengeluaran" 
                     fill="#F43F5E" 
-                    radius={[8, 8, 0, 0]} 
-                    maxBarSize={45} 
+                    radius={[6, 6, 0, 0]} 
+                    maxBarSize={32} 
                   />
                 </BarChart>
               </ResponsiveContainer>
