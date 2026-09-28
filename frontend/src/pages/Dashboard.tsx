@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Header from '../components/layout/Header';
 import api from '../lib/axios';
-import { formatRupiah, getSiklusDateRange, KATEGORI_ICON } from '../utils/helpers';
+import { formatRupiah, getSiklusDateRange, getCurrentCycleBulanTahun, KATEGORI_ICON } from '../utils/helpers';
 import { Link } from 'react-router-dom';
 import DateRangeFilter from '../components/ui/DateRangeFilter';
 import Skeleton from '../components/ui/Skeleton';
@@ -62,8 +62,9 @@ export default function Dashboard() {
   const fetchSummary = async () => {
     setIsLoading(true);
     try {
+      const { bulan, tahun } = getCurrentCycleBulanTahun(siklusTgl);
       const [summaryRes, trendRes] = await Promise.all([
-        api.get('/dashboard/summary', { params: { startDate, endDate } }),
+        api.get('/dashboard/summary', { params: { startDate, endDate, bulan, tahun } }),
         api.get('/dashboard/trend', { params: { startDate, endDate } })
       ]);
       setData(summaryRes.data);

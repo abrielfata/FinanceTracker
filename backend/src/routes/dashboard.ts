@@ -12,8 +12,20 @@ router.get('/summary', async (req: AuthRequest, res: Response, next: NextFunctio
   const { bulan, tahun, startDate, endDate } = req.query;
 
   try {
-    const bulanNum = bulan ? parseInt(bulan as string) : new Date().getMonth() + 1;
-    const tahunNum = tahun ? parseInt(tahun as string) : new Date().getFullYear();
+    let bulanNum: number;
+    let tahunNum: number;
+
+    if (bulan && tahun) {
+      bulanNum = parseInt(bulan as string);
+      tahunNum = parseInt(tahun as string);
+    } else if (endDate) {
+      const endD = new Date(endDate as string);
+      bulanNum = endD.getMonth() + 1;
+      tahunNum = endD.getFullYear();
+    } else {
+      bulanNum = new Date().getMonth() + 1;
+      tahunNum = new Date().getFullYear();
+    }
 
     // Default ke kalender normal jika tidak ada range
     const fallbackStart = formatDateString(new Date(tahunNum, bulanNum - 1, 1));

@@ -17,6 +17,42 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
   const startDateLalu = formatDateString(prevStart);
   const endDateLalu = formatDateString(prevEnd);
 
+  // Ensure tagihan_bulan entries exist for the target bulanNum / tahunNum
+  const activeTagihan = await db
+    .select()
+    .from(tagihan)
+    .where(and(eq(tagihan.userId, userId), isNull(tagihan.deletedAt)));
+
+  if (activeTagihan.length > 0) {
+    const existingEntries = await db
+      .select({ tagihanId: tagihanBulan.tagihanId })
+      .from(tagihanBulan)
+      .where(
+        and(
+          eq(tagihanBulan.userId, userId),
+          eq(tagihanBulan.bulan, bulanNum),
+          eq(tagihanBulan.tahun, tahunNum)
+        )
+      );
+
+    const existingTagihanIds = new Set(existingEntries.map((e) => e.tagihanId));
+
+    for (const t of activeTagihan) {
+      if (!existingTagihanIds.has(t.id)) {
+        await db
+          .insert(tagihanBulan)
+          .values({
+            tagihanId: t.id,
+            userId,
+            bulan: bulanNum,
+            tahun: tahunNum,
+            status: 'belum_lunas',
+          })
+          .onConflictDoNothing();
+      }
+    }
+  }
+
   const [
     [summary],
     [summaryKumulatif],
