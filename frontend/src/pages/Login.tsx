@@ -31,7 +31,10 @@ export default function Login() {
     setError(null);
     setIsLoading(true);
     try {
-      const response = await api.post('/auth/login', data);
+      const response = await api.post('/auth/login', {
+        ...data,
+        email: data.email.trim(),
+      });
       setAuth(response.data.user, response.data.accessToken);
       navigate('/');
     } catch (err: any) {
