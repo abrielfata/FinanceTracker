@@ -3,11 +3,12 @@ import Header from '../components/layout/Header';
 import Modal from '../components/ui/Modal';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import Skeleton from '../components/ui/Skeleton';
-import MonthSelector from '../components/ui/MonthSelector';
+import DateRangeFilter from '../components/ui/DateRangeFilter';
 import BudgetForm, { type BudgetFormData } from '../components/budget/BudgetForm';
 import toast from 'react-hot-toast';
 import api from '../lib/axios';
-import { formatRupiah, KATEGORI_ICON, KATEGORI_COLOR, getBudgetPersen } from '../utils/helpers';
+import { formatRupiah, KATEGORI_ICON, KATEGORI_COLOR, getBudgetPersen, getSiklusDateRange, getCurrentCycleBulanTahun } from '../utils/helpers';
+import { useAuthStore } from '../store/useAuthStore';
 
 interface BudgetItem {
   id: string;
@@ -24,9 +25,14 @@ export default function Budget() {
   const [budgetList, setBudgetList] = useState<BudgetItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
+  const { user } = useAuthStore();
+  const siklusTgl = user?.siklusTgl || 26;
+
   // Filters
-  const [bulan, setBulan] = useState(new Date().getMonth() + 1);
-  const [tahun, setTahun] = useState(new Date().getFullYear());
+  const [startDate, setStartDate] = useState(() => getSiklusDateRange(siklusTgl).start);
+  const [endDate, setEndDate] = useState(() => getSiklusDateRange(siklusTgl).end);
+  const [bulan, setBulan] = useState(() => getCurrentCycleBulanTahun(siklusTgl).bulan);
+  const [tahun, setTahun] = useState(() => getCurrentCycleBulanTahun(siklusTgl).tahun);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,12 +44,12 @@ export default function Budget() {
 
   useEffect(() => {
     fetchBudget();
-  }, [bulan, tahun]);
+  }, [startDate, endDate, bulan, tahun]);
 
   const fetchBudget = async () => {
     setIsLoading(true);
     try {
-      const res = await api.get('/budget', { params: { bulan, tahun } });
+      const res = await api.get('/budget', { params: { bulan, tahun, startDate, endDate } });
       setBudgetList(res.data.data);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Gagal mengambil data budget');
@@ -111,10 +117,13 @@ export default function Budget() {
         {/* Actions & Filters */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-lg gap-4 relative z-20">
           <div className="flex flex-wrap items-center gap-4">
-            <MonthSelector 
-              selectedBulan={bulan}
-              selectedTahun={tahun}
-              onChange={(b, t) => { setBulan(b); setTahun(t); }}
+            <DateRangeFilter 
+              startDate={startDate}
+              endDate={endDate}
+              onChange={(start, end) => {
+                setStartDate(start);
+                setEndDate(end);
+              }}
             />
           </div>
 

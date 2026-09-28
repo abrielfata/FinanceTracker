@@ -19,11 +19,12 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
 
   const [
     [summary],
+    [summaryKumulatif],
     rawTagihanTerdekat,
     rawBudgetSummary,
-    [summaryLalu]
+    [summaryKumulatifLalu]
   ] = await Promise.all([
-    // 1. Total pemasukan & pengeluaran bulan ini (berdasarkan custom date range)
+    // 1. Total pemasukan & pengeluaran siklus ini
     db
       .select({
         pemasukan: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0)`,
@@ -35,6 +36,21 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
           eq(transaksi.userId, userId),
           isNull(transaksi.deletedAt),
           gte(transaksi.tanggal, startDate),
+          lte(transaksi.tanggal, endDate)
+        )
+      ),
+
+    // 1b. Total kumulatif s/d akhir siklus ini (Total Saldo Sebenarnya)
+    db
+      .select({
+        pemasukanKumulatif: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0)`,
+        pengeluaranKumulatif: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pengeluaran' THEN nominal ELSE 0 END), 0)`,
+      })
+      .from(transaksi)
+      .where(
+        and(
+          eq(transaksi.userId, userId),
+          isNull(transaksi.deletedAt),
           lte(transaksi.tanggal, endDate)
         )
       ),
@@ -86,18 +102,17 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
         )
       ),
 
-    // 4. Saldo bulan lalu (untuk persentase perubahan)
+    // 4. Saldo kumulatif s/d akhir siklus lalu
     db
       .select({
-        pemasukan: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0)`,
-        pengeluaran: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pengeluaran' THEN nominal ELSE 0 END), 0)`,
+        pemasukanKumulatifLalu: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pemasukan' THEN nominal ELSE 0 END), 0)`,
+        pengeluaranKumulatifLalu: sql<number>`COALESCE(SUM(CASE WHEN jenis = 'pengeluaran' THEN nominal ELSE 0 END), 0)`,
       })
       .from(transaksi)
       .where(
         and(
           eq(transaksi.userId, userId),
           isNull(transaksi.deletedAt),
-          gte(transaksi.tanggal, startDateLalu),
           lte(transaksi.tanggal, endDateLalu)
         )
       )
@@ -105,12 +120,15 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
 
   const pemasukan = Number(summary?.pemasukan) || 0;
   const pengeluaran = Number(summary?.pengeluaran) || 0;
-  const saldo = pemasukan - pengeluaran;
-  
-  const pemasukanLalu = Number(summaryLalu?.pemasukan) || 0;
-  const pengeluaranLalu = Number(summaryLalu?.pengeluaran) || 0;
-  const saldoLalu = pemasukanLalu - pengeluaranLalu;
-  
+
+  const pemasukanKumulatif = Number(summaryKumulatif?.pemasukanKumulatif) || 0;
+  const pengeluaranKumulatif = Number(summaryKumulatif?.pengeluaranKumulatif) || 0;
+  const saldo = pemasukanKumulatif - pengeluaranKumulatif;
+
+  const pemasukanKumulatifLalu = Number(summaryKumulatifLalu?.pemasukanKumulatifLalu) || 0;
+  const pengeluaranKumulatifLalu = Number(summaryKumulatifLalu?.pengeluaranKumulatifLalu) || 0;
+  const saldoLalu = pemasukanKumulatifLalu - pengeluaranKumulatifLalu;
+
   const persenSaldo = saldoLalu > 0
     ? ((saldo - saldoLalu) / saldoLalu) * 100
     : 0;
@@ -136,6 +154,7 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
     pemasukan,
     pengeluaran,
     persenSaldo: Math.round(persenSaldo * 10) / 10,
+    sisaSiklusLalu: saldoLalu,
     tagihanTerdekat,
     budgetSummary,
   };
@@ -156,20 +175,33 @@ export const getTrendSummary = async (userId: string, filterStartDate?: string, 
     const [u] = await db.select({ siklusTgl: users.siklusTgl }).from(users).where(eq(users.id, userId)).limit(1);
     const siklusTgl = u?.siklusTgl || 26;
 
-    let startM = currentBulan - 1;
-    let startY = currentTahun;
-    if (startM === 0) {
-      startM = 12;
-      startY -= 1;
-    }
-    
+    const today = now.getDate();
+
     if (siklusTgl === 1) {
       const lastDay = new Date(currentTahun, currentBulan, 0).getDate();
       baseStart = new Date(currentTahun, currentBulan - 1, 1);
       baseEnd = new Date(currentTahun, currentBulan - 1, lastDay);
     } else {
+      let startM = currentBulan;
+      let startY = currentTahun;
+      let endM = currentBulan + 1;
+      let endY = currentTahun;
+
+      if (today < siklusTgl) {
+        startM = currentBulan - 1;
+        endM = currentBulan;
+      }
+      if (startM <= 0) {
+        startM += 12;
+        startY -= 1;
+      }
+      if (endM > 12) {
+        endM -= 12;
+        endY += 1;
+      }
+
       baseStart = new Date(startY, startM - 1, siklusTgl);
-      baseEnd = new Date(currentTahun, currentBulan - 1, siklusTgl - 1);
+      baseEnd = new Date(endY, endM - 1, siklusTgl - 1);
     }
   }
 

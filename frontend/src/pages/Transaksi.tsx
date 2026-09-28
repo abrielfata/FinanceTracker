@@ -135,9 +135,7 @@ export default function Transaksi() {
       const isDateInRange = data.tanggal >= startDate && data.tanggal <= endDate;
 
       if (!isDateInRange) {
-        const now = new Date();
-        const start = `${now.getFullYear()}-${String(now.getMonth()).padStart(2, '0')}-26`;
-        const end = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-25`;
+        const { start, end } = getSiklusDateRange(siklusTgl);
         setStartDate(start);
         setEndDate(end);
       } else {

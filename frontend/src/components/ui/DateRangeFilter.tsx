@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
+import { getSiklusDateRange } from '../../utils/helpers';
 
 interface DateRangeFilterProps {
   startDate: string;
@@ -46,78 +47,17 @@ export default function DateRangeFilter({ startDate, endDate, onChange, label }:
   };
 
   const handlePresetBulanIni = () => {
-    const now = new Date();
-    const currentBulan = now.getMonth() + 1;
-    const currentTahun = now.getFullYear();
-    
-    let startM = currentBulan - 1;
-    let startY = currentTahun;
-    if (startM === 0) {
-      startM = 12;
-      startY -= 1;
-    }
-    // But since siklusTgl is the START date of the cycle, the END date is siklusTgl - 1 (of the current month)
-    // Actually, if siklusTgl is 1, then the cycle is 1st to End of Month.
-    // If siklusTgl is 26, cycle is 26th of prev month to 25th of current month.
-    
-    let cycleStartM = startM;
-    let cycleStartY = startY;
-    let cycleEndM = currentBulan;
-    let cycleEndY = currentTahun;
-    
-    if (siklusTgl === 1) {
-      cycleStartM = currentBulan;
-      cycleStartY = currentTahun;
-      const lastDay = new Date(currentTahun, currentBulan, 0).getDate();
-      const start = `${cycleStartY}-${String(cycleStartM).padStart(2, '0')}-01`;
-      const end = `${cycleEndY}-${String(cycleEndM).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-      onChange(start, end);
-      setIsOpen(false);
-      return;
-    }
-
-    const start = `${cycleStartY}-${String(cycleStartM).padStart(2, '0')}-${String(siklusTgl).padStart(2, '0')}`;
-    const end = `${cycleEndY}-${String(cycleEndM).padStart(2, '0')}-${String(siklusTgl - 1).padStart(2, '0')}`;
-    
+    const { start, end } = getSiklusDateRange(siklusTgl, new Date());
     onChange(start, end);
     setIsOpen(false);
   };
 
   const handlePresetBulanLalu = () => {
-    const now = new Date();
-    let prevBulan = now.getMonth(); // previous month
-    let prevTahun = now.getFullYear();
-    if (prevBulan === 0) {
-      prevBulan = 12;
-      prevTahun -= 1;
-    }
-    
-    let startM = prevBulan - 1;
-    let startY = prevTahun;
-    if (startM === 0) {
-      startM = 12;
-      startY -= 1;
-    }
-    
-    let cycleStartM = startM;
-    let cycleStartY = startY;
-    let cycleEndM = prevBulan;
-    let cycleEndY = prevTahun;
-    
-    if (siklusTgl === 1) {
-      cycleStartM = prevBulan;
-      cycleStartY = prevTahun;
-      const lastDay = new Date(prevTahun, prevBulan, 0).getDate();
-      const start = `${cycleStartY}-${String(cycleStartM).padStart(2, '0')}-01`;
-      const end = `${cycleEndY}-${String(cycleEndM).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-      onChange(start, end);
-      setIsOpen(false);
-      return;
-    }
-
-    const start = `${cycleStartY}-${String(cycleStartM).padStart(2, '0')}-${String(siklusTgl).padStart(2, '0')}`;
-    const end = `${cycleEndY}-${String(cycleEndM).padStart(2, '0')}-${String(siklusTgl - 1).padStart(2, '0')}`;
-    
+    const currentCycle = getSiklusDateRange(siklusTgl, new Date());
+    // Get date 1 day before current cycle start to evaluate previous cycle
+    const currentStart = new Date(currentCycle.start);
+    const prevRefDate = new Date(currentStart.setDate(currentStart.getDate() - 1));
+    const { start, end } = getSiklusDateRange(siklusTgl, prevRefDate);
     onChange(start, end);
     setIsOpen(false);
   };
