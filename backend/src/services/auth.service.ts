@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { db } from '../db';
 import { users, NewUser } from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { ConflictError, NotFoundError, UnauthorizedError } from '../utils/errors';
 
 export const generateTokens = (userId: string, email: string) => {
@@ -21,11 +21,12 @@ export const generateTokens = (userId: string, email: string) => {
 
 export const registerUser = async (data: Omit<NewUser, 'id' | 'createdAt' | 'updatedAt'>) => {
   const { nama, email, passwordHash: password } = data;
+  const cleanEmail = email.trim().toLowerCase();
 
   const existing = await db
     .select()
     .from(users)
-    .where(eq(users.email, email))
+    .where(sql`LOWER(${users.email}) = ${cleanEmail}`)
     .limit(1);
 
   if (existing.length > 0) {
@@ -35,7 +36,7 @@ export const registerUser = async (data: Omit<NewUser, 'id' | 'createdAt' | 'upd
   const hashedPassword = await bcrypt.hash(password, 10);
   const [newUser] = await db
     .insert(users)
-    .values({ nama, email, passwordHash: hashedPassword })
+    .values({ nama: nama.trim(), email: cleanEmail, passwordHash: hashedPassword })
     .returning({ id: users.id, email: users.email, nama: users.nama, siklusTgl: users.siklusTgl });
 
   const tokens = generateTokens(newUser.id, newUser.email);
@@ -44,10 +45,11 @@ export const registerUser = async (data: Omit<NewUser, 'id' | 'createdAt' | 'upd
 };
 
 export const loginUser = async (email: string, passwordString: string) => {
+  const cleanEmail = email.trim().toLowerCase();
   const [user] = await db
     .select()
     .from(users)
-    .where(eq(users.email, email))
+    .where(sql`LOWER(${users.email}) = ${cleanEmail}`)
     .limit(1);
 
   if (!user) {

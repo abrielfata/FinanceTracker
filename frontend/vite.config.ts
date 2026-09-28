@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['logo.png'],
+      includeAssets: ['logo.png', 'logo-192.png', 'logo-512.png'],
       manifest: {
         name: 'FiTrack - Finance Tracker',
         short_name: 'FiTrack',
@@ -17,14 +17,15 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           {
-            src: 'logo.png',
+            src: 'logo-192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'logo.png',
+            src: 'logo-512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
           }
         ]
       }
