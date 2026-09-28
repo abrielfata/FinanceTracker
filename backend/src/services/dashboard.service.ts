@@ -1,10 +1,12 @@
 import { db } from '../db';
 import { transaksi, tagihan, tagihanBulan, budget, users } from '../db/schema';
 import { eq, and, sql, isNull, gte, lte, or, ne } from 'drizzle-orm';
-import { getSpendingSubquery } from './budget.service';
+import { getSpendingSubquery, autoCopyPreviousBudget } from './budget.service';
 import { formatDateString } from '../utils/date';
 
 export const getDashboardSummary = async (userId: string, bulanNum: number, tahunNum: number, startDate: string, endDate: string) => {
+  // Auto carry forward budget for target cycle if not set
+  await autoCopyPreviousBudget(userId, bulanNum, tahunNum);
   // Hitung range tanggal untuk bulan lalu
   const start = new Date(startDate);
   const end = new Date(endDate);

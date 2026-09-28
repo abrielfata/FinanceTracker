@@ -1,7 +1,7 @@
 import { db } from '../db';
-import { tagihan, tagihanBulan, budget } from '../db/schema';
+import { tagihan, tagihanBulan, budget, users } from '../db/schema';
 import { eq, and, isNull } from 'drizzle-orm';
-import { getSpendingSubquery } from './budget.service';
+import { getSpendingSubquery, autoCopyPreviousBudget } from './budget.service';
 
 import { formatDateString } from '../utils/date';
 
@@ -18,10 +18,47 @@ export const getDynamicNotifications = async (userId: string): Promise<Notificat
   const now = new Date();
   const currentBulan = now.getMonth() + 1;
   const currentTahun = now.getFullYear();
+  const today = now.getDate();
 
-  // Hitung startDate dan endDate untuk bulan kalender saat ini
-  const startDate = formatDateString(new Date(currentTahun, currentBulan - 1, 1));
-  const endDate = formatDateString(new Date(currentTahun, currentBulan, 0));
+  // Get user's salary cycle date
+  const [u] = await db.select({ siklusTgl: users.siklusTgl }).from(users).where(eq(users.id, userId)).limit(1);
+  const siklusTgl = u?.siklusTgl || 26;
+
+  let targetBulan = currentBulan;
+  let targetTahun = currentTahun;
+  let startYear = currentTahun;
+  let startMonth = currentBulan;
+  let endYear = currentTahun;
+  let endMonth = currentBulan;
+  let startDate = '';
+  let endDate = '';
+
+  if (siklusTgl === 1) {
+    const lastDay = new Date(currentTahun, currentBulan, 0).getDate();
+    startDate = `${currentTahun}-${String(currentBulan).padStart(2, '0')}-01`;
+    endDate = `${currentTahun}-${String(currentBulan).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+  } else if (today >= siklusTgl) {
+    targetBulan = currentBulan + 1;
+    if (targetBulan > 12) {
+      targetBulan = 1;
+      targetTahun += 1;
+    }
+    endMonth = currentBulan + 1;
+    if (endMonth > 12) {
+      endMonth = 1;
+      endYear += 1;
+    }
+    startDate = `${startYear}-${String(startMonth).padStart(2, '0')}-${String(siklusTgl).padStart(2, '0')}`;
+    endDate = `${endYear}-${String(endMonth).padStart(2, '0')}-${String(siklusTgl - 1).padStart(2, '0')}`;
+  } else {
+    startMonth = currentBulan - 1;
+    if (startMonth === 0) {
+      startMonth = 12;
+      startYear -= 1;
+    }
+    startDate = `${startYear}-${String(startMonth).padStart(2, '0')}-${String(siklusTgl).padStart(2, '0')}`;
+    endDate = `${endYear}-${String(endMonth).padStart(2, '0')}-${String(siklusTgl - 1).padStart(2, '0')}`;
+  }
 
   // 1. Tagihan Alerts
   const tagihanList = await db
@@ -36,8 +73,8 @@ export const getDynamicNotifications = async (userId: string): Promise<Notificat
       tagihanBulan,
       and(
         eq(tagihanBulan.tagihanId, tagihan.id),
-        eq(tagihanBulan.bulan, currentBulan),
-        eq(tagihanBulan.tahun, currentTahun)
+        eq(tagihanBulan.bulan, targetBulan),
+        eq(tagihanBulan.tahun, targetTahun)
       )
     )
     .where(
@@ -47,12 +84,10 @@ export const getDynamicNotifications = async (userId: string): Promise<Notificat
       )
     );
 
-  console.log('NOTIFIKASI - TAGIHAN LIST FETCHED:', tagihanList); // DEBUG
-
   for (const t of tagihanList) {
     if (t.status === 'lunas') continue;
     
-    const jatuhTempo = new Date(currentTahun, currentBulan - 1, t.tanggalJatuhTempo);
+    const jatuhTempo = new Date(targetTahun, targetBulan - 1, t.tanggalJatuhTempo);
     const diffDays = Math.ceil((jatuhTempo.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     
     if (diffDays < 0) {
@@ -75,6 +110,8 @@ export const getDynamicNotifications = async (userId: string): Promise<Notificat
   }
 
   // 2. Budget Alerts
+  await autoCopyPreviousBudget(userId, targetBulan, targetTahun);
+
   const budgetList = await db
     .select({
       id: budget.id,
@@ -86,8 +123,8 @@ export const getDynamicNotifications = async (userId: string): Promise<Notificat
     .where(
       and(
         eq(budget.userId, userId),
-        eq(budget.bulan, currentBulan),
-        eq(budget.tahun, currentTahun)
+        eq(budget.bulan, targetBulan),
+        eq(budget.tahun, targetTahun)
       )
     );
 
