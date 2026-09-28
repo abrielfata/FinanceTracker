@@ -16,7 +16,61 @@ export const getSpendingSubquery = (userId: string, startDate: string, endDate: 
   ), 0) AS DOUBLE PRECISION)`;
 };
 
+export const autoCopyPreviousBudget = async (userId: string, targetBulan: number, targetTahun: number) => {
+  // Check if target month already has budgets
+  const existingTargetBudgets = await db
+    .select({ id: budget.id })
+    .from(budget)
+    .where(and(eq(budget.userId, userId), eq(budget.bulan, targetBulan), eq(budget.tahun, targetTahun)))
+    .limit(1);
+
+  if (existingTargetBudgets.length > 0) {
+    return; // Already configured for target month
+  }
+
+  // Find most recent past budget month for this user
+  const recentPastBudget = await db
+    .select({ bulan: budget.bulan, tahun: budget.tahun })
+    .from(budget)
+    .where(
+      and(
+        eq(budget.userId, userId),
+        sql`(${budget.tahun} < ${targetTahun} OR (${budget.tahun} = ${targetTahun} AND ${budget.bulan} < ${targetBulan}))`
+      )
+    )
+    .orderBy(sql`${budget.tahun} DESC, ${budget.bulan} DESC`)
+    .limit(1);
+
+  if (recentPastBudget.length === 0) {
+    return; // No previous budgets to copy from
+  }
+
+  const { bulan: prevBulan, tahun: prevTahun } = recentPastBudget[0];
+
+  // Fetch all budgets from that previous month
+  const pastBudgets = await db
+    .select({ kategori: budget.kategori, nominal: budget.nominal })
+    .from(budget)
+    .where(and(eq(budget.userId, userId), eq(budget.bulan, prevBulan), eq(budget.tahun, prevTahun)));
+
+  if (pastBudgets.length === 0) return;
+
+  // Auto insert budgets into target month
+  const newBudgetValues = pastBudgets.map((b) => ({
+    userId,
+    kategori: b.kategori,
+    nominal: Number(b.nominal),
+    bulan: targetBulan,
+    tahun: targetTahun,
+  }));
+
+  await db.insert(budget).values(newBudgetValues).onConflictDoNothing();
+};
+
 export const getBudgetList = async (userId: string, bulanNum: number, tahunNum: number, startDate: string, endDate: string) => {
+  // Auto carry forward budget from previous month if not yet set for target month
+  await autoCopyPreviousBudget(userId, bulanNum, tahunNum);
+
   const result = await db
     .select({
       id: budget.id,
