@@ -15,6 +15,7 @@ interface DashboardSummary {
   pemasukan: number;
   pengeluaran: number;
   persenSaldo: number;
+  sisaSiklusLalu?: number;
   tagihanTerdekat: Array<{
     id: string;
     nama: string;
@@ -199,19 +200,28 @@ export default function Dashboard() {
               <p className={`font-headline font-bold mb-4 tracking-tight drop-shadow-md transition-all duration-300 ${isBalanceHidden ? 'text-4xl md:text-5xl text-white/40' : 'text-4xl md:text-5xl text-white'}`}>
                 {isBalanceHidden ? 'Rp •••••••••' : formatRupiah(data.saldo)}
               </p>
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-3 bg-white/5 w-fit px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-sm">
-                  <span className={`inline-flex items-center gap-1 font-bold text-xs ${data.persenSaldo >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                    <span className="material-symbols-outlined text-[14px]">
-                      {data.persenSaldo >= 0 ? 'trending_up' : 'trending_down'}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-2 bg-white/5 w-fit px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-sm">
+                    <span className={`inline-flex items-center gap-1 font-bold text-xs ${data.persenSaldo >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      <span className="material-symbols-outlined text-[14px]">
+                        {data.persenSaldo >= 0 ? 'trending_up' : 'trending_down'}
+                      </span>
+                      {Math.abs(data.persenSaldo)}%
                     </span>
-                    {Math.abs(data.persenSaldo)}%
-                  </span>
-                  <span className="font-body text-[11px] text-white/60">Bulan ini</span>
+                    <span className="font-body text-[11px] text-white/60">Siklus ini</span>
+                  </div>
+
+                  {data.sisaSiklusLalu !== undefined && data.sisaSiklusLalu !== 0 && (
+                    <div className="flex items-center gap-1.5 bg-amber-400/10 text-amber-200 text-[11px] px-3 py-1.5 rounded-full border border-amber-400/20 backdrop-blur-sm font-medium">
+                      <span className="material-symbols-outlined text-[14px] text-amber-300">account_balance_wallet</span>
+                      <span>Sisa siklus lalu: <strong className="text-amber-100">{isBalanceHidden ? 'Rp •••••' : formatRupiah(data.sisaSiklusLalu)}</strong></span>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Visual Debit Card Brand */}
-                <div className="flex flex-col items-end">
+                <div className="flex flex-col items-end shrink-0 hidden sm:flex">
                   <span className="text-[10px] text-white/40 font-semibold tracking-widest uppercase">FiTrack</span>
                 </div>
               </div>

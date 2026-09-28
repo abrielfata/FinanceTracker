@@ -7,7 +7,8 @@ import MonthSelector from '../components/ui/MonthSelector';
 import TagihanForm, { type TagihanFormData } from '../components/tagihan/TagihanForm';
 import toast from 'react-hot-toast';
 import api from '../lib/axios';
-import { formatRupiah, KATEGORI_ICON, KATEGORI_COLOR, hariMenujuJatuhTempo } from '../utils/helpers';
+import { formatRupiah, KATEGORI_ICON, KATEGORI_COLOR, hariMenujuJatuhTempo, getCurrentCycleBulanTahun } from '../utils/helpers';
+import { useAuthStore } from '../store/useAuthStore';
 
 interface TagihanItem {
   id: string;
@@ -27,9 +28,12 @@ export default function Tagihan() {
   const [tagihanList, setTagihanList] = useState<TagihanItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
+  const { user } = useAuthStore();
+  const siklusTgl = user?.siklusTgl || 26;
+
   // Filters
-  const [bulan, setBulan] = useState(new Date().getMonth() + 1);
-  const [tahun, setTahun] = useState(new Date().getFullYear());
+  const [bulan, setBulan] = useState(() => getCurrentCycleBulanTahun(siklusTgl).bulan);
+  const [tahun, setTahun] = useState(() => getCurrentCycleBulanTahun(siklusTgl).tahun);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);

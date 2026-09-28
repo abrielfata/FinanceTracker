@@ -1,37 +1,70 @@
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 
-export const getSiklusDateRange = (siklusTgl: number = 26) => {
-  const now = new Date();
-  const currentBulan = now.getMonth() + 1;
-  const currentTahun = now.getFullYear();
-  
-  let startM = currentBulan - 1;
-  let startY = currentTahun;
-  if (startM === 0) {
-    startM = 12;
-    startY -= 1;
-  }
-  
-  let cycleStartM = startM;
-  let cycleStartY = startY;
-  let cycleEndM = currentBulan;
-  let cycleEndY = currentTahun;
+export const getSiklusDateRange = (siklusTgl: number = 26, referenceDate: Date = new Date()) => {
+  const currentBulan = referenceDate.getMonth() + 1;
+  const currentTahun = referenceDate.getFullYear();
+  const today = referenceDate.getDate();
   
   if (siklusTgl === 1) {
-    cycleStartM = currentBulan;
-    cycleStartY = currentTahun;
     const lastDay = new Date(currentTahun, currentBulan, 0).getDate();
     return {
-      start: `${cycleStartY}-${String(cycleStartM).padStart(2, '0')}-01`,
-      end: `${cycleEndY}-${String(cycleEndM).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+      start: `${currentTahun}-${String(currentBulan).padStart(2, '0')}-01`,
+      end: `${currentTahun}-${String(currentBulan).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
     };
   }
 
+  let startYear = currentTahun;
+  let startMonth = currentBulan;
+  let endYear = currentTahun;
+  let endMonth = currentBulan;
+
+  if (today >= siklusTgl) {
+    // Hari ini sudah mencapai/melewati tanggal gajian (misal: tgl 29 Sep, siklus 28)
+    // Berarti masuk siklus aktif bulan ini s.d. bulan depan (28 Sep - 27 Okt)
+    endMonth = currentBulan + 1;
+    if (endMonth > 12) {
+      endMonth = 1;
+      endYear += 1;
+    }
+  } else {
+    // Hari ini belum mencapai tanggal gajian (misal: tgl 15 Sep, siklus 28)
+    // Berarti masuk siklus aktif bulan lalu s.d. bulan ini (28 Ags - 27 Sep)
+    startMonth = currentBulan - 1;
+    if (startMonth === 0) {
+      startMonth = 12;
+      startYear -= 1;
+    }
+  }
+
+  const endDay = siklusTgl - 1;
+
   return {
-    start: `${cycleStartY}-${String(cycleStartM).padStart(2, '0')}-${String(siklusTgl).padStart(2, '0')}`,
-    end: `${cycleEndY}-${String(cycleEndM).padStart(2, '0')}-${String(siklusTgl - 1).padStart(2, '0')}`
+    start: `${startYear}-${String(startMonth).padStart(2, '0')}-${String(siklusTgl).padStart(2, '0')}`,
+    end: `${endYear}-${String(endMonth).padStart(2, '0')}-${String(endDay).padStart(2, '0')}`
   };
+};
+
+export const getCurrentCycleBulanTahun = (siklusTgl: number = 26, referenceDate: Date = new Date()) => {
+  const currentBulan = referenceDate.getMonth() + 1;
+  const currentTahun = referenceDate.getFullYear();
+  const today = referenceDate.getDate();
+
+  if (siklusTgl === 1) {
+    return { bulan: currentBulan, tahun: currentTahun };
+  }
+
+  if (today >= siklusTgl) {
+    let bulan = currentBulan + 1;
+    let tahun = currentTahun;
+    if (bulan > 12) {
+      bulan = 1;
+      tahun += 1;
+    }
+    return { bulan, tahun };
+  }
+
+  return { bulan: currentBulan, tahun: currentTahun };
 };
 
 // Format number to Indonesian Rupiah
