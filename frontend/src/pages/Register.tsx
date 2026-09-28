@@ -55,9 +55,11 @@ export default function Register() {
       <div className="w-full max-w-md mx-auto space-y-6">
         {/* Header Branding */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-premium-charcoal text-amber-400 font-bold text-xl shadow-lg mb-2">
-            FT
-          </div>
+          <img
+            src="/logo.png"
+            alt="FiTrack Logo"
+            className="w-16 h-16 sm:w-20 sm:h-20 object-contain mx-auto mb-2 drop-shadow-md"
+          />
           <h1 className="font-headline text-3xl font-black text-on-surface tracking-tight">FiTrack</h1>
           <p className="font-body text-sm text-on-surface-variant">Buat akun baru untuk mulai kelola keuanganmu</p>
         </div>
