@@ -51,131 +51,126 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-premium-base flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center items-center gap-3 mb-6">
-          <span className="font-headline text-3xl font-bold text-on-surface tracking-tight">FiTrack</span>
+    <div className="min-h-screen bg-premium-base flex flex-col justify-center items-center px-4 py-8 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md mx-auto space-y-6">
+        {/* Header Branding */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-premium-charcoal text-amber-400 font-bold text-xl shadow-lg mb-2">
+            FT
+          </div>
+          <h1 className="font-headline text-3xl font-black text-on-surface tracking-tight">FiTrack</h1>
+          <p className="font-body text-sm text-on-surface-variant">Buat akun baru untuk mulai kelola keuanganmu</p>
         </div>
-        <h2 className="mt-6 text-center text-headline-md text-on-surface">Buat akun baru</h2>
-      </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-surface-container-lowest py-8 px-4 shadow-premium sm:rounded-2xl sm:px-10 border border-premium-border">
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        {/* Card Form */}
+        <div className="bg-surface-container-lowest py-8 px-6 sm:px-10 rounded-3xl shadow-premium border border-premium-border/80">
+          <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
             {error && (
-              <div className="bg-error-container text-on-error-container p-3 rounded-lg text-sm font-medium">
+              <div className="bg-error-container/80 text-on-error-container px-4 py-3 rounded-xl text-sm font-medium border border-error/20 animate-fade-in">
                 {error}
               </div>
             )}
 
             <div>
-              <label htmlFor="nama" className="block text-sm font-medium text-on-surface-variant">
+              <label htmlFor="nama" className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">
                 Nama Lengkap
               </label>
-              <div className="mt-1">
-                <input
-                  {...register('nama')}
-                  id="nama"
-                  type="text"
-                  className={`appearance-none block w-full px-3 py-2 border ${
-                    errors.nama ? 'border-error' : 'border-outline-variant'
-                  } rounded-lg shadow-sm placeholder-outline focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white transition-colors`}
-                />
-                {errors.nama && (
-                  <p className="mt-1 text-sm text-error">{errors.nama.message}</p>
-                )}
-              </div>
+              <input
+                {...register('nama')}
+                id="nama"
+                type="text"
+                placeholder="Nama Lengkap"
+                className={`appearance-none block w-full px-4 py-3 border ${
+                  errors.nama ? 'border-error ring-1 ring-error' : 'border-outline-variant'
+                } rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm bg-white transition-all`}
+              />
+              {errors.nama && (
+                <p className="mt-1.5 text-xs font-medium text-error">{errors.nama.message}</p>
+              )}
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-on-surface-variant">
+              <label htmlFor="email" className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">
                 Alamat Email
               </label>
-              <div className="mt-1">
-                <input
-                  {...register('email')}
-                  id="email"
-                  type="email"
-                  className={`appearance-none block w-full px-3 py-2 border ${
-                    errors.email ? 'border-error' : 'border-outline-variant'
-                  } rounded-lg shadow-sm placeholder-outline focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white transition-colors`}
-                />
-                {errors.email && (
-                  <p className="mt-1 text-sm text-error">{errors.email.message}</p>
-                )}
-              </div>
+              <input
+                {...register('email')}
+                id="email"
+                type="email"
+                placeholder="nama@email.com"
+                className={`appearance-none block w-full px-4 py-3 border ${
+                  errors.email ? 'border-error ring-1 ring-error' : 'border-outline-variant'
+                } rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm bg-white transition-all`}
+              />
+              {errors.email && (
+                <p className="mt-1.5 text-xs font-medium text-error">{errors.email.message}</p>
+              )}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-on-surface-variant">
+              <label htmlFor="password" className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">
                 Password
               </label>
-              <div className="mt-1">
-                <input
-                  {...register('password')}
-                  id="password"
-                  type="password"
-                  className={`appearance-none block w-full px-3 py-2 border ${
-                    errors.password ? 'border-error' : 'border-outline-variant'
-                  } rounded-lg shadow-sm placeholder-outline focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white transition-colors`}
-                />
-                {errors.password && (
-                  <p className="mt-1 text-sm text-error">{errors.password.message}</p>
-                )}
-              </div>
+              <input
+                {...register('password')}
+                id="password"
+                type="password"
+                placeholder="Minimal 8 karakter"
+                className={`appearance-none block w-full px-4 py-3 border ${
+                  errors.password ? 'border-error ring-1 ring-error' : 'border-outline-variant'
+                } rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm bg-white transition-all`}
+              />
+              {errors.password && (
+                <p className="mt-1.5 text-xs font-medium text-error">{errors.password.message}</p>
+              )}
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-on-surface-variant">
+              <label htmlFor="confirmPassword" className="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1.5">
                 Konfirmasi Password
               </label>
-              <div className="mt-1">
-                <input
-                  {...register('confirmPassword')}
-                  id="confirmPassword"
-                  type="password"
-                  className={`appearance-none block w-full px-3 py-2 border ${
-                    errors.confirmPassword ? 'border-error' : 'border-outline-variant'
-                  } rounded-lg shadow-sm placeholder-outline focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white transition-colors`}
-                />
-                {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-error">{errors.confirmPassword.message}</p>
-                )}
-              </div>
+              <input
+                {...register('confirmPassword')}
+                id="confirmPassword"
+                type="password"
+                placeholder="Ulangi password"
+                className={`appearance-none block w-full px-4 py-3 border ${
+                  errors.confirmPassword ? 'border-error ring-1 ring-error' : 'border-outline-variant'
+                } rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm bg-white transition-all`}
+              />
+              {errors.confirmPassword && (
+                <p className="mt-1.5 text-xs font-medium text-error">{errors.confirmPassword.message}</p>
+              )}
             </div>
 
-
-            <div>
+            <div className="pt-2">
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-body-md font-bold text-white bg-premium-charcoal hover:bg-premium-charcoal/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 transition-colors"
+                className="w-full flex justify-center py-3.5 px-4 rounded-xl shadow-md text-sm font-bold text-white bg-premium-charcoal hover:bg-premium-charcoal/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 transition-all hover:scale-[1.01] active:scale-[0.99]"
               >
-                {isLoading ? 'Memproses...' : 'Daftar'}
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                    Memproses...
+                  </span>
+                ) : (
+                  'Daftar'
+                )}
               </button>
             </div>
           </form>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-premium-border" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-surface-container-lowest text-on-surface-variant">
-                  Sudah punya akun?
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-6 text-center">
+          <div className="mt-8 pt-6 border-t border-premium-border/60 text-center">
+            <p className="text-sm text-on-surface-variant">
+              Sudah punya akun?{' '}
               <Link
                 to="/login"
-                className="font-medium text-primary hover:text-primary/80 transition-colors"
+                className="font-bold text-primary hover:underline transition-colors ml-1"
               >
                 Masuk di sini
               </Link>
-            </div>
+            </p>
           </div>
         </div>
       </div>
