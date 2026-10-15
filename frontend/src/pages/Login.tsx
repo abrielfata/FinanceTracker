@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import toast from 'react-hot-toast';
 import api from '../lib/axios';
 import { useAuthStore } from '../store/useAuthStore';
 
@@ -36,9 +37,12 @@ export default function Login() {
         email: data.email.trim(),
       });
       setAuth(response.data.user, response.data.accessToken);
+      toast.success('Berhasil masuk! Selamat datang kembali.');
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Terjadi kesalahan saat login');
+      const message = err.response?.data?.message || 'Terjadi kesalahan saat login';
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -75,6 +79,7 @@ export default function Login() {
                 {...register('email')}
                 id="email"
                 type="email"
+                autoComplete="username"
                 placeholder="nama@email.com"
                 className={`appearance-none block w-full px-4 py-3 border ${
                   errors.email ? 'border-error ring-1 ring-error' : 'border-outline-variant'
@@ -93,6 +98,7 @@ export default function Login() {
                 {...register('password')}
                 id="password"
                 type="password"
+                autoComplete="current-password"
                 placeholder="••••••••"
                 className={`appearance-none block w-full px-4 py-3 border ${
                   errors.password ? 'border-error ring-1 ring-error' : 'border-outline-variant'
