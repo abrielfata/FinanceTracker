@@ -2,10 +2,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { KATEGORI_PENGELUARAN, KATEGORI_PEMASUKAN } from '../../utils/helpers';
+import CurrencyInput from '../ui/CurrencyInput';
 
 const transaksiSchema = z.object({
   jenis: z.enum(['pemasukan', 'pengeluaran']),
-  nominal: z.number().positive('Nominal harus lebih dari 0'),
+  nominal: z
+    .number({ message: 'Nominal wajib diisi' })
+    .positive('Nominal harus lebih dari 0'),
   kategori: z.string().min(1, 'Kategori wajib diisi'),
   tanggal: z.string().min(1, 'Tanggal wajib diisi'),
   deskripsi: z.string().optional(),
@@ -84,15 +87,10 @@ export default function TransaksiForm({ initialData, onSubmit, isLoading, onCanc
           name="nominal"
           control={control}
           render={({ field: { onChange, value } }) => (
-            <input
-              type="text"
-              inputMode="numeric"
+            <CurrencyInput
               id="nominal"
-              value={value ? value.toLocaleString('id-ID') : ''}
-              onChange={(e) => {
-                const rawValue = e.target.value.replace(/\D/g, '');
-                onChange(rawValue ? parseInt(rawValue, 10) : undefined);
-              }}
+              value={value}
+              onChange={onChange}
               className="appearance-none block w-full px-4 py-3 border border-outline-variant rounded-xl shadow-sm placeholder-outline focus:outline-none focus:ring-primary focus:border-primary text-headline-md font-bold bg-white transition-colors"
               placeholder="0"
             />
