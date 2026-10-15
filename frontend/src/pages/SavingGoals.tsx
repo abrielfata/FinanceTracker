@@ -5,6 +5,7 @@ import ConfirmDialog from '../components/ui/ConfirmDialog';
 import api from '../lib/axios';
 import { formatRupiah } from '../utils/helpers';
 import toast from 'react-hot-toast';
+import CurrencyInput from '../components/ui/CurrencyInput';
 
 interface SavingGoal {
   id: string;
@@ -362,29 +363,21 @@ export default function SavingGoals() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-on-surface mb-1">Target Nominal (Rp) *</label>
-              <input
-                type="text"
-                inputMode="numeric"
+              <CurrencyInput
+                id="targetNominal"
                 required
-                value={targetNominal ? Number(targetNominal).toLocaleString('id-ID') : ''}
-                onChange={(e) => {
-                  const rawValue = e.target.value.replace(/\D/g, '');
-                  setTargetNominal(rawValue);
-                }}
+                value={targetNominal ? Number(targetNominal) : undefined}
+                onChange={(val) => setTargetNominal(val ? String(val) : '')}
                 placeholder="20.000.000"
                 className="w-full px-3.5 py-2.5 rounded-xl border border-premium-border bg-surface text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
             <div>
               <label className="block text-xs font-semibold text-on-surface mb-1">Saldo Awal (Opsional)</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={terkumpulNominal ? Number(terkumpulNominal).toLocaleString('id-ID') : ''}
-                onChange={(e) => {
-                  const rawValue = e.target.value.replace(/\D/g, '');
-                  setTerkumpulNominal(rawValue);
-                }}
+              <CurrencyInput
+                id="terkumpulNominal"
+                value={terkumpulNominal ? Number(terkumpulNominal) : undefined}
+                onChange={(val) => setTerkumpulNominal(val ? String(val) : '')}
                 placeholder="0"
                 className="w-full px-3.5 py-2.5 rounded-xl border border-premium-border bg-surface text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
@@ -448,16 +441,12 @@ export default function SavingGoals() {
 
           <div>
             <label className="block text-xs font-semibold text-on-surface mb-1">Nominal Setoran (Rp) *</label>
-            <input
-              type="text"
-              inputMode="numeric"
+            <CurrencyInput
+              id="depositNominal"
               required
               autoFocus
-              value={depositNominal ? Number(depositNominal).toLocaleString('id-ID') : ''}
-              onChange={(e) => {
-                const rawValue = e.target.value.replace(/\D/g, '');
-                setDepositNominal(rawValue);
-              }}
+              value={depositNominal ? Number(depositNominal) : undefined}
+              onChange={(val) => setDepositNominal(val ? String(val) : '')}
               placeholder="Contoh: 100.000"
               className="w-full px-3.5 py-2.5 rounded-xl border border-premium-border bg-surface text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
             />

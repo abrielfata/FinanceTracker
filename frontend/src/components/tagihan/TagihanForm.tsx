@@ -3,11 +3,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { KATEGORI_LIST } from '../../utils/helpers';
 import AnimatedCheckbox from '../ui/AnimatedCheckbox';
-
+import CurrencyInput from '../ui/CurrencyInput';
 
 const tagihanSchema = z.object({
   nama: z.string().min(1, 'Nama tagihan wajib diisi'),
-  nominal: z.number().positive('Nominal harus lebih dari 0'),
+  nominal: z
+    .number({ message: 'Nominal perkiraan wajib diisi' })
+    .positive('Nominal harus lebih dari 0'),
   tanggalJatuhTempo: z.number().min(1, 'Minimal tanggal 1').max(31, 'Maksimal tanggal 31'),
   kategori: z.string().min(1, 'Kategori wajib diisi'),
   catatan: z.string().optional(),
@@ -67,15 +69,10 @@ export default function TagihanForm({ initialData, onSubmit, isLoading, onCancel
           name="nominal"
           control={control}
           render={({ field: { onChange, value } }) => (
-            <input
-              type="text"
-              inputMode="numeric"
+            <CurrencyInput
               id="nominal"
-              value={value ? value.toLocaleString('id-ID') : ''}
-              onChange={(e) => {
-                const rawValue = e.target.value.replace(/\D/g, '');
-                onChange(rawValue ? parseInt(rawValue, 10) : undefined);
-              }}
+              value={value}
+              onChange={onChange}
               className="appearance-none block w-full px-4 py-3 border border-outline-variant rounded-xl shadow-sm placeholder-outline focus:outline-none focus:ring-primary focus:border-primary text-headline-md font-bold bg-white transition-colors"
               placeholder="0"
             />
