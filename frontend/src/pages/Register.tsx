@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import toast from 'react-hot-toast';
 import api from '../lib/axios';
 import { useAuthStore } from '../store/useAuthStore';
 
@@ -42,9 +43,12 @@ export default function Register() {
         password: data.password,
       });
       setAuth(response.data.user, response.data.accessToken);
+      toast.success('Pendaftaran berhasil! Selamat datang di FiTrack.');
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Terjadi kesalahan saat mendaftar');
+      const message = err.response?.data?.message || 'Terjadi kesalahan saat mendaftar';
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
