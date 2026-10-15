@@ -88,6 +88,7 @@ export const budget = pgTable(
       .references(() => users.id, { onDelete: 'cascade' }),
     kategori: text('kategori').notNull(),
     nominal: bigint('nominal', { mode: 'number' }).notNull(),
+    deskripsi: text('deskripsi'),
     bulan: integer('bulan').notNull(), // 1-12
     tahun: integer('tahun').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),

@@ -129,6 +129,7 @@ export const getDashboardSummary = async (userId: string, bulanNum: number, tahu
         id: budget.id,
         kategori: budget.kategori,
         nominal: budget.nominal,
+        deskripsi: budget.deskripsi,
         terpakai: getSpendingSubquery(userId, startDate, endDate),
       })
       .from(budget)

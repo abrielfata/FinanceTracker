@@ -11,6 +11,7 @@ router.use(authMiddleware);
 const budgetSchema = z.object({
   kategori: z.string().min(1, 'Kategori wajib diisi'),
   nominal: z.number().positive('Nominal harus lebih dari 0'),
+  deskripsi: z.string().optional(),
   bulan: z.number().min(1).max(12),
   tahun: z.number().min(2020).max(2100),
 });
@@ -51,14 +52,19 @@ router.post('/', async (req: AuthRequest, res: Response, next: NextFunction): Pr
 });
 
 router.put('/:id', async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-  const parsed = z.object({ nominal: z.number().positive() }).safeParse(req.body);
+  const parsed = z
+    .object({
+      nominal: z.number().positive('Nominal harus lebih dari 0').optional(),
+      deskripsi: z.string().optional(),
+    })
+    .safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ message: 'Nominal tidak valid' });
+    res.status(400).json({ message: parsed.error.errors[0].message });
     return;
   }
 
   try {
-    const data = await BudgetService.updateBudgetNominal(req.user!.id, req.params.id as string, parsed.data.nominal);
+    const data = await BudgetService.updateBudget(req.user!.id, req.params.id as string, parsed.data);
     res.json({ message: 'Budget berhasil diubah', data });
   } catch (err) {
     next(err);

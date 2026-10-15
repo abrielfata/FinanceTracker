@@ -17,6 +17,7 @@ interface BudgetItem {
   nominal: number;
   bulan: number;
   tahun: number;
+  deskripsi?: string | null;
   createdAt: string;
   terpakai: number;
 }
@@ -88,7 +89,7 @@ export default function Budget() {
     setIsSubmitting(true);
     try {
       if (editingData) {
-        await api.put(`/budget/${editingData.id}`, { nominal: data.nominal });
+        await api.put(`/budget/${editingData.id}`, { nominal: data.nominal, deskripsi: data.deskripsi });
         toast.success('Budget berhasil diperbarui');
       } else {
         await api.post('/budget', data);
@@ -182,14 +183,21 @@ export default function Budget() {
                   >
                     <div>
                       <div className="flex justify-between items-start mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${KATEGORI_COLOR[b.kategori] || KATEGORI_COLOR['Lainnya']}`}>
+                        <div className="flex items-center gap-3 min-w-0 pr-2">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${KATEGORI_COLOR[b.kategori] || KATEGORI_COLOR['Lainnya']}`}>
                             <span className="material-symbols-outlined text-[20px]">{KATEGORI_ICON[b.kategori] || 'category'}</span>
                           </div>
-                          <h4 className="font-body text-body-md font-bold text-on-surface">{b.kategori}</h4>
+                          <div className="min-w-0">
+                            <h4 className="font-body text-body-md font-bold text-on-surface truncate">{b.kategori}</h4>
+                            {b.deskripsi && (
+                              <p className="text-xs text-on-surface-variant/80 italic mt-0.5 line-clamp-1" title={b.deskripsi}>
+                                {b.deskripsi}
+                              </p>
+                            )}
+                          </div>
                         </div>
                         
-                        <div className="flex items-center gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                           <button 
                             onClick={() => handleOpenEdit(b)}
                             className="w-7 h-7 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors"
@@ -240,11 +248,15 @@ export default function Budget() {
         title={editingData ? 'Edit Budget' : 'Atur Budget'}
       >
         <BudgetForm
-          initialData={{
+          initialData={editingData ? {
             ...editingData,
+            deskripsi: editingData.deskripsi ?? '',
             bulan,
             tahun,
-          } as any}
+          } : {
+            bulan,
+            tahun,
+          }}
           onSubmit={handleSubmitForm}
           isLoading={isSubmitting}
           onCancel={() => setIsModalOpen(false)}
