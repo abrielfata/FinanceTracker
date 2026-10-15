@@ -30,6 +30,7 @@ interface DashboardSummary {
     kategori: string;
     nominal: number;
     terpakai: number;
+    deskripsi?: string | null;
   }>;
 }
 

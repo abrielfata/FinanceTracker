@@ -9,6 +9,7 @@ const budgetSchema = z.object({
   nominal: z
     .number({ message: 'Nominal target wajib diisi' })
     .positive('Nominal harus lebih dari 0'),
+  deskripsi: z.string().optional(),
   bulan: z.number().min(1).max(12),
   tahun: z.number().min(2020).max(2100),
 });
@@ -34,6 +35,7 @@ export default function BudgetForm({ initialData, onSubmit, isLoading, onCancel,
     defaultValues: {
       kategori: initialData?.kategori || '',
       nominal: initialData?.nominal || undefined,
+      deskripsi: initialData?.deskripsi || '',
       bulan: initialData?.bulan || new Date().getMonth() + 1,
       tahun: initialData?.tahun || new Date().getFullYear(),
     },
@@ -87,6 +89,20 @@ export default function BudgetForm({ initialData, onSubmit, isLoading, onCancel,
           )}
         />
         {errors.nominal && <p className="mt-1 text-sm text-error">{errors.nominal.message}</p>}
+      </div>
+
+      {/* Deskripsi */}
+      <div>
+        <label htmlFor="deskripsi" className="block text-sm font-medium text-on-surface-variant mb-1">
+          Catatan / Deskripsi (Opsional)
+        </label>
+        <textarea
+          {...register('deskripsi')}
+          id="deskripsi"
+          rows={2}
+          className="appearance-none block w-full px-4 py-2.5 border border-outline-variant rounded-xl shadow-sm placeholder-outline focus:outline-none focus:ring-primary focus:border-primary text-body-sm bg-white transition-colors resize-none"
+          placeholder="Contoh: Maksimal 2x nongkrong per minggu, jajan hemat..."
+        />
       </div>
 
       {/* Hidden Fields for Bulan & Tahun */}

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import Header from '../components/layout/Header';
 import ConfirmDialog from '../components/ui/ConfirmDialog';
 import LogoutButton from '../components/ui/LogoutButton';
+import WhatsNewModal from '../components/ui/WhatsNewModal';
+import { CURRENT_APP_VERSION } from '../config/changelog';
 import { useAuthStore } from '../store/useAuthStore';
 import api from '../lib/axios';
 import { useNavigate } from 'react-router-dom';
@@ -20,6 +22,7 @@ export default function Pengaturan() {
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
 
   const handleLogout = async () => {
     await api.post('/auth/logout').catch(() => {});
@@ -168,8 +171,33 @@ export default function Pengaturan() {
             </div>
           </div>
 
-          {/* Danger Zone */}
-          <div className="md:col-span-4">
+          {/* Sidebar Settings: App Info & Danger Zone */}
+          <div className="md:col-span-4 space-y-gutter">
+            {/* Informasi Aplikasi */}
+            <div className="bg-surface-container-lowest rounded-3xl p-6 sm:p-lg border border-premium-border shadow-premium">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-[22px]">rocket_launch</span>
+                </div>
+                <div>
+                  <h3 className="font-headline text-headline-sm font-semibold text-on-surface">Tentang Aplikasi</h3>
+                  <span className="text-xs text-on-surface-variant font-medium">FiTrack v{CURRENT_APP_VERSION}</span>
+                </div>
+              </div>
+              <p className="font-body text-body-sm text-on-surface-variant mb-5">
+                Ingin tahu fitur dan peningkatan terbaru? Anda dapat melihat catatan rilis kapan saja.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowWhatsNew(true)}
+                className="w-full py-2.5 px-4 rounded-xl border border-premium-border bg-surface-container-lowest hover:bg-surface-container font-body text-body-sm font-semibold text-on-surface transition-colors flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[18px]">history</span>
+                Catatan Rilis
+              </button>
+            </div>
+
+            {/* Danger Zone */}
             <div className="bg-surface-container-lowest rounded-3xl p-6 sm:p-lg border border-error-container shadow-premium">
               <h3 className="font-headline text-headline-md text-error mb-4">Zona Berbahaya</h3>
               <p className="font-body text-body-sm text-on-surface-variant mb-6">
@@ -186,7 +214,6 @@ export default function Pengaturan() {
         </div>
       </main>
 
-
       <ConfirmDialog
         isOpen={showLogoutConfirm}
         onClose={() => setShowLogoutConfirm(false)}
@@ -194,6 +221,11 @@ export default function Pengaturan() {
         title="Keluar Akun"
         message="Yakin ingin keluar dari akun aplikasi FiTrack?"
         confirmText="Keluar"
+      />
+
+      <WhatsNewModal
+        isOpen={showWhatsNew}
+        onClose={() => setShowWhatsNew(false)}
       />
     </>
   );

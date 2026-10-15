@@ -49,7 +49,7 @@ export const autoCopyPreviousBudget = async (userId: string, targetBulan: number
 
   // Fetch all budgets from that previous month
   const pastBudgets = await db
-    .select({ kategori: budget.kategori, nominal: budget.nominal })
+    .select({ kategori: budget.kategori, nominal: budget.nominal, deskripsi: budget.deskripsi })
     .from(budget)
     .where(and(eq(budget.userId, userId), eq(budget.bulan, prevBulan), eq(budget.tahun, prevTahun)));
 
@@ -60,6 +60,7 @@ export const autoCopyPreviousBudget = async (userId: string, targetBulan: number
     userId,
     kategori: b.kategori,
     nominal: Number(b.nominal),
+    deskripsi: b.deskripsi,
     bulan: targetBulan,
     tahun: targetTahun,
   }));
@@ -76,6 +77,7 @@ export const getBudgetList = async (userId: string, bulanNum: number, tahunNum: 
       id: budget.id,
       kategori: budget.kategori,
       nominal: budget.nominal,
+      deskripsi: budget.deskripsi,
       bulan: budget.bulan,
       tahun: budget.tahun,
       terpakai: getSpendingSubquery(userId, startDate, endDate),
@@ -103,17 +105,25 @@ export const createOrUpdateBudget = async (userId: string, data: Omit<NewBudget,
     .values({ ...data, userId })
     .onConflictDoUpdate({
       target: [budget.userId, budget.kategori, budget.bulan, budget.tahun],
-      set: { nominal: data.nominal },
+      set: { nominal: data.nominal, deskripsi: data.deskripsi },
     })
     .returning();
 
   return newBudget;
 };
 
-export const updateBudgetNominal = async (userId: string, budgetId: string, nominal: number) => {
+export const updateBudget = async (
+  userId: string,
+  budgetId: string,
+  data: { nominal?: number; deskripsi?: string | null }
+) => {
+  const updateData: Partial<{ nominal: number; deskripsi: string | null }> = {};
+  if (data.nominal !== undefined) updateData.nominal = data.nominal;
+  if (data.deskripsi !== undefined) updateData.deskripsi = data.deskripsi;
+
   const [updatedBudget] = await db
     .update(budget)
-    .set({ nominal })
+    .set(updateData)
     .where(and(eq(budget.id, budgetId), eq(budget.userId, userId)))
     .returning();
 
@@ -122,6 +132,10 @@ export const updateBudgetNominal = async (userId: string, budgetId: string, nomi
   }
 
   return updatedBudget;
+};
+
+export const updateBudgetNominal = async (userId: string, budgetId: string, nominal: number) => {
+  return updateBudget(userId, budgetId, { nominal });
 };
 
 export const deleteBudget = async (userId: string, budgetId: string) => {
